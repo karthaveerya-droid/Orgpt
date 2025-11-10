@@ -6,7 +6,7 @@ Fetches multiple Swagger/OpenAPI sources and returns a single list of flattened 
 Drop-in compatible with main.py expecting: docs = extract_text_from_swagger(...)
 """
 
-from ingestion.swagger_connector_helpers import (
+from ingestion.Swagger_connector.swagger_connector_helpers import (
     fetch_swagger,
     extract_full_api_spec,
     render_api_to_text,

@@ -1,8 +1,17 @@
 from openai import OpenAI
+from dotenv import load_dotenv
+
+import os
+
+# Load variables from .env
+load_dotenv()
+
+# Access them like this:
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 class LLMHandler:
     def __init__(self, api_key=None):
-        self.client = OpenAI(api_key="testagain")
+        self.client = OpenAI(api_key=openai_api_key)
 
     def ask(self, query, context):
         prompt = f"Context:\n{context}\n\nQuestion:\n{query}\nAnswer:"

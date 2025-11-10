@@ -13,7 +13,7 @@ from fastapi.templating import Jinja2Templates
 # ensure imports work
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from ingestion.swagger_connector import extract_text_from_swagger_sources
+from ingestion.Swagger_connector.swagger_connector import extract_text_from_swagger_sources
 from processing.chunker import chunk_texts
 from processing.embedder import Embedder
 from vector_store.store import VectorStore

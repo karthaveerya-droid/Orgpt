@@ -15,3 +15,5 @@ numpy
 openai
 python-dotenv
 tqdm
+
+python-docx
