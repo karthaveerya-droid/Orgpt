@@ -2,7 +2,7 @@ from openai import OpenAI
 
 class LLMHandler:
     def __init__(self, api_key=None):
-        self.client = OpenAI(api_key="test")
+        self.client = OpenAI(api_key="testagain")
 
     def ask(self, query, context):
         prompt = f"Context:\n{context}\n\nQuestion:\n{query}\nAnswer:"
