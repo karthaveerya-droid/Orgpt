@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ORGpt</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f6f8fb;
+      margin: 0;
+      padding: 2rem;
+    }
+    #chatbox {
+      width: 70%;
+      margin: auto;
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    #messages {
+      height: 450px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: #fafafa;
+      border-radius: 6px;
+      white-space: pre-wrap; /* preserve line breaks */
+    }
+    .user {
+      color: #0056ff;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+    }
+    .bot {
+      color: #222;
+      margin-bottom: 1rem;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 0.8rem;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-family: Consolas, monospace;
+      font-size: 0.95em;
+    }
+    form {
+      display: flex;
+      gap: 0.5rem;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.7rem 1.5rem;
+      background: #0056ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0040c1;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="chatbox">
+    <h2>Orgpt Chat Interface</h2>
+    <div id="messages"></div>
+
+    <form id="chat-form">
+      <input type="text" id="query" name="query" placeholder="Ask Orgpt about any API..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("chat-form");
+    const messages = document.getElementById("messages");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const query = document.getElementById("query").value;
+      if (!query.trim()) return;
+
+      // Display user's message
+      messages.innerHTML += `<div class="user"><b>You:</b> ${query}</div>`;
+      document.getElementById("query").value = "";
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ query })
+        });
+
+        const data = await response.json();
+        console.log("📦 Raw response:", data);
+
+        // ✅ Handle both success and error cases
+        if (data.answer) {
+          // Preserve line breaks and code blocks
+          messages.innerHTML += `<div class="bot"><b>Orgpt:</b><pre>${data.answer}</pre></div>`;
+        } else if (data.error) {
+          messages.innerHTML += `<div class="bot"><b>Error:</b> ${data.error}</div>`;
+        } else {
+          messages.innerHTML += `<div class="bot"><b>Orgpt:</b> (No valid answer returned)</div>`;
+        }
+
+        messages.scrollTop = messages.scrollHeight;
+      } catch (err) {
+        console.error("❌ Fetch error:", err);
+        messages.innerHTML += `<div class="bot"><b>Error:</b> Unable to connect to backend.</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

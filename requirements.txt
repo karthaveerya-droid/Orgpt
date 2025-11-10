@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+
+chromadb
+duckdb
+
+sentence-transformers
+transformers
+huggingface_hub
+
+requests
+pyyaml
+numpy
+
+openai
+python-dotenv
+tqdm
