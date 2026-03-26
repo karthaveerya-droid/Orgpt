@@ -108,78 +108,6 @@ graph TD
 
 ---
 
-## 🚀 Future Roadmap - GitHub Repository Analysis
-
-### Phase 1: GitHub Connector (Next 4 weeks)
-```mermaid
-graph LR
-    A["GitHub API"] --> B["Repository Cloner"]
-    B --> C["Code Parser<br/>(AST)"]
-    C --> D["API Extractor<br/>(REST/gRPC)"]
-    D --> E["Dependency Graph<br/>Builder"]
-    E --> F["Vector Store"]
-    
-    style A fill:#FFE5B4
-    style B fill:#B4E5FF
-    style C fill:#B4FFB4
-    style D fill:#FFB4E5
-    style E fill:#E5B4FF
-    style F fill:#F0E68C
-```
-
-**Tasks:**
-- [ ] Implement GitHub API client with OAuth authentication
-- [ ] Clone/analyze repositories
-- [ ] Parse code (Python/TypeScript/Java)
-- [ ] Extract API decorators (FastAPI, Flask, Express)
-- [ ] Map imports and dependencies
-
-### Phase 2: Dependency Graph Analysis
-```mermaid
-graph TD
-    A["Service A<br/>GET /users"] --> B["Service B<br/>GET /auth"]
-    B --> C["Service C<br/>Database"]
-    A --> D["Service D<br/>Cache"]
-    D --> C
-    
-    style A fill:#FFB6C1
-    style B fill:#87CEEB
-    style C fill:#98FB98
-    style D fill:#DDA0DD
-```
-
-**Features:**
-- Service dependency graph
-- Change impact analysis
-- Cycle detection
-- Criticality analysis
-
-### Phase 3: LeanIX Integration
-```mermaid
-graph LR
-    OG["ORGPT<br/>GitHub Analysis"] -->|Sync| LX["LeanIX<br/>Enterprise Architecture"]
-    LX -->|Query| LX1["Applications"]
-    LX -->|Query| LX2["Interfaces"]
-    LX -->|Query| LX3["Relations"]
-    
-    style OG fill:#F0E68C
-    style LX fill:#E8F4F8
-```
-
-### Phase 4: Datadog Integration
-```mermaid
-graph LR
-    OG["ORGPT<br/>Analysis"] -->|Metrics| DD["Datadog<br/>Monitoring"]
-    DD -->|Track| DD1["Query Performance"]
-    DD -->|Track| DD2["API Usage"]
-    DD -->|Track| DD3["System Health"]
-    
-    style OG fill:#F0E68C
-    style DD fill:#FFB6C1
-```
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -195,7 +123,6 @@ orgpt/
 ├── ingestion/                   # 📥 Ingestion Layer
 │   ├── __init__.py
 │   ├── swagger_connector.py     # Parse Swagger/OpenAPI (TODAY)
-│   └── github_connector.py      # Analyze GitHub (FUTURE)
 │
 ├── processing/                  # ⚙️ Processing Layer
 │   ├── __init__.py
@@ -214,10 +141,6 @@ orgpt/
 │   ├── __init__.py
 │   └── llm_layer.py             # LLM model interface
 │
-├── integrations/                # 🔗 External Integrations (FUTURE)
-│   ├── leanix_connector.py      # LeanIX connection
-│   └── datadog_client.py        # Datadog telemetry
-│
 ├── data/                        # 📊 Data
 │   ├── sample_swagger.json      # Sample Swagger
 │   └── indices/                 # Vector indices
@@ -226,7 +149,6 @@ orgpt/
     ├── index.html
     └── styles.css
 ```
-
 ---
 
 ## ⚡ Installation and Configuration
@@ -254,22 +176,6 @@ pip install -r requirements.txt
 cat > .env << EOF
 # OpenAI
 OPENAI_API_KEY=your-api-key
-
-# Vector Store (select one)
-VECTOR_STORE_TYPE=pinecone  # or: weaviate, faiss
-PINECONE_API_KEY=your-key
-PINECONE_INDEX_NAME=orgpt
-
-# GitHub (FUTURE)
-GITHUB_TOKEN=your-token
-
-# LeanIX (FUTURE)
-LEANIX_API_KEY=your-key
-LEANIX_WORKSPACE_ID=your-workspace
-
-# Datadog (FUTURE)
-DATADOG_API_KEY=your-key
-DATADOG_APP_KEY=your-app-key
 EOF
 ```
 
@@ -300,15 +206,9 @@ python main.py
 # Response: "To create a user, make a POST request to..."
 ```
 
-### 3. Web Interface (Streamlit)
-
-```bash
-streamlit run app.py
-```
-
 Access: `http://localhost:8501`
 
-### 4. REST API (FastAPI)
+### 3. REST API (FastAPI)
 
 ```bash
 uvicorn app_api:app --reload
@@ -353,33 +253,6 @@ Response:
   "status": "healthy"
 }
 ```
-
-### GitHub Analysis (FUTURE)
-```http
-POST /api/github/analyze
-Content-Type: application/json
-
-{
-  "repo": "your-org/your-repo",
-  "branch": "main",
-  "extract_apis": true,
-  "generate_dependency_graph": true
-}
-
-Response:
-{
-  "services": [
-    {
-      "name": "UserService",
-      "endpoints": 12,
-      "dependencies": ["AuthService", "DatabaseLayer"]
-    }
-  ],
-  "dependency_graph": {...},
-  "analysis_id": "analysis_123"
-}
-```
-
 ---
 
 ## 🔧 Component Details
@@ -392,18 +265,6 @@ from ingestion.swagger_connector import extract_text_from_swagger_sources
 
 docs = extract_text_from_swagger_sources("sample_swagger.json")
 # Returns: ["GET /users - Retrieves list of users...", ...]
-```
-
-#### GitHub Connector (Future)
-```python
-from ingestion.github_connector import extract_apis_from_github
-
-apis = extract_apis_from_github(
-    repo="org/repo",
-    patterns=["@app.route", "@router.get", "@app.post"],
-    languages=["python", "typescript", "java"]
-)
-# Returns: [APIInfo, APIInfo, ...]
 ```
 
 ### 2. Processing Layer (Data Processing)
@@ -429,7 +290,7 @@ embeddings = embedder.embed(chunks)
 ```python
 from vector_store.store import VectorStore
 
-vs = VectorStore("pinecone", index_name="orgpt")
+vs = VectorStore("swagger")
 
 # Add documents
 vs.add(
