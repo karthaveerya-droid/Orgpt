@@ -17,3 +17,12 @@ python-dotenv
 tqdm
 
 python-docx
+
+# Datadog Integration
+datadog-api-client
+python-dateutil
+
+# Async & Caching
+aiohttp
+cachetools
+httpx

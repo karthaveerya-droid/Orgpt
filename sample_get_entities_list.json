@@ -1,25 +1,444 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Sample API",
-    "version": "1.0.0"
-  },
-  "paths": {
-    "/users": {
-      "get": {
-        "summary": "List users",
-        "description": "Retrieve all users"
+  "data": [
+    {
+      "attributes": {
+        "apiVersion": "laborum fugiat elit aliquip Excepteur",
+        "description": "labore sit cillum",
+        "displayName": "adipisicing",
+        "kind": "incididunt ea deserunt",
+        "name": "cul",
+        "namespace": "tempor dolore ipsum id",
+        "owner": "in sed fugiat id",
+        "tags": [
+          "ut",
+          "ipsum "
+        ]
       },
-      "post": {
-        "summary": "Create user",
-        "description": "Create a new user"
-      }
+      "id": "culpa",
+      "meta": {
+        "createdAt": "nulla proide",
+        "ingestionSource": "dol",
+        "modifiedAt": "officia enim eu",
+        "origin": "veniam mollit"
+      },
+      "relationships": {
+        "incidents": {
+          "data": [
+            {
+              "id": "labore incididunt ex",
+              "type": "sed do aute dolor anim"
+            },
+            {
+              "id": "sed aliqua dolore",
+              "type": "Lorem esse pariatur ei"
+            }
+          ]
+        },
+        "oncall": {
+          "data": [
+            {
+              "id": "laborum nulla",
+              "type": "laboris Ut ex eiusmod"
+            },
+            {
+              "id": "reprehenderit commodo in officia minim",
+              "type": "Duis"
+            }
+          ]
+        },
+        "rawSchema": {
+          "data": {
+            "id": "fugiat sit",
+            "type": "non Duis"
+          }
+        },
+        "relatedEntities": {
+          "data": [
+            {
+              "id": "culpa mollit exercitation qui",
+              "type": "amet sit do Lorem sed"
+            },
+            {
+              "id": "aute id deserunt dolore",
+              "type": "tempor culpa"
+            }
+          ]
+        },
+        "schema": {
+          "data": {
+            "id": "in sit adipisicing",
+            "type": "esse"
+          }
+        }
+      },
+      "type": "ad velit consequat"
     },
-    "/users/{id}": {
-      "get": {
-        "summary": "Get user",
-        "description": "Retrieve user by ID"
-      }
+    {
+      "attributes": {
+        "apiVersion": "cupidatat",
+        "description": "eiusmod",
+        "displayName": "qui esse laboris officia",
+        "kind": "fugiat adipisicing sint consequat",
+        "name": "irure sunt",
+        "namespace": "fugiat dolor tempor nisi amet",
+        "owner": "sed",
+        "tags": [
+          "elit in",
+          "pariatur velit"
+        ]
+      },
+      "id": "sit elit in dolor irure",
+      "meta": {
+        "createdAt": "nostrud ex magna aute ut",
+        "ingestionSource": "anim",
+        "modifiedAt": "exercitation labore",
+        "origin": "tempor do laboris"
+      },
+      "relationships": {
+        "incidents": {
+          "data": [
+            {
+              "id": "adipisicing dolore",
+              "type": "deserunt mollit nulla eu"
+            },
+            {
+              "id": "pariatur commodo sint",
+              "type": "Ut do"
+            }
+          ]
+        },
+        "oncall": {
+          "data": [
+            {
+              "id": "et Lorem",
+              "type": "minim laborum"
+            },
+            {
+              "id": "cupidatat velit",
+              "type": "pariatur ea commodo"
+            }
+          ]
+        },
+        "rawSchema": {
+          "data": {
+            "id": "qui pariatur ullamco commodo culpa",
+            "type": "commodo pariatur"
+          }
+        },
+        "relatedEntities": {
+          "data": [
+            {
+              "id": "culpa aliqua ullamco",
+              "type": "aliqua non"
+            },
+            {
+              "id": "ad dolore anim",
+              "type": "enim aute"
+            }
+          ]
+        },
+        "schema": {
+          "data": {
+            "id": "do adipisicing",
+            "type": "magna"
+          }
+        }
+      },
+      "type": "irure sit et aute"
     }
+  ],
+  "included": [
+    {
+      "attributes": {
+        "schema": {
+          "apiVersion": "v3",
+          "kind": "service",
+          "metadata": {
+            "name": "myService",
+            "additionalOwners": [
+              {
+                "name": "",
+                "type": "mollit"
+              },
+              {
+                "name": "",
+                "type": "sed quis dolore"
+              }
+            ],
+            "contacts": [
+              {
+                "type": "slack",
+                "contact": "https://slack/",
+                "name": "cillum sunt"
+              },
+              {
+                "type": "slack",
+                "contact": "https://slack/",
+                "name": "mollit velit"
+              }
+            ],
+            "description": "deserunt ex sint in nulla",
+            "displayName": "adipisicing sin",
+            "id": "4b163705-23c0-4573-b2fb-f6cea2163fcb",
+            "inheritFrom": "application:default/myapp",
+            "links": [
+              {
+                "name": "mylink",
+                "type": "link",
+                "url": "https://mylink",
+                "provider": "exercitation"
+              },
+              {
+                "name": "mylink",
+                "type": "link",
+                "url": "https://mylink",
+                "provider": ""
+              }
+            ],
+            "managed": {
+              "aliqua_": {}
+            },
+            "namespace": "default",
+            "owner": "consequat Duis",
+            "tags": [
+              "this:tag",
+              "that:tag"
+            ]
+          },
+          "datadog": {
+            "codeLocations": [
+              {
+                "paths": [
+                  "nisi voluptate",
+                  "occaecat aute anim ut"
+                ],
+                "repositoryURL": "Lorem proident sit sed"
+              },
+              {
+                "paths": [
+                  "culpa Ut",
+                  "nostrud"
+                ],
+                "repositoryURL": "Lorem non irure Excepteur"
+              }
+            ],
+            "events": [
+              {
+                "name": "eu consequat",
+                "query": "exercitation sit commodo"
+              },
+              {
+                "name": "Excepteur dolore",
+                "query": "non aliquip velit aliqua"
+              }
+            ],
+            "logs": [
+              {
+                "name": "qui sit",
+                "query": "velit eu commod"
+              },
+              {
+                "name": "laboris quis dolore reprehenderit",
+                "query": "qui"
+              }
+            ],
+            "performanceData": {
+              "tags": [
+                "consequat irure Ut est",
+                "enim ullamco"
+              ]
+            },
+            "pipelines": {
+              "fingerprints": [
+                "veniam aliquip dolor",
+                "veniam"
+              ]
+            }
+          },
+          "extensions": {
+            "dolore_da4": {},
+            "ullamco_7": {}
+          },
+          "integrations": {
+            "opsgenie": {
+              "serviceURL": "https://www.opsgenie.com/service/shopping-cart",
+              "region": "nulla Ut in ipsum"
+            },
+            "pagerduty": {
+              "serviceURL": "https://www.pagerduty.com/service-directory/Pshopping-cart"
+            }
+          },
+          "spec": {
+            "componentOf": [
+              "aliqua irure laborum fugiat",
+              "proident cillum"
+            ],
+            "dependsOn": [
+              "deserunt occaecat",
+              "quis aute dolor ullamco"
+            ],
+            "languages": [
+              "dolore magna laborum ipsum",
+              "enim adipisicing"
+            ],
+            "lifecycle": "cons",
+            "tier": "ullamco Excepteur",
+            "type": "labore ipsum officia qui "
+          }
+        }
+      },
+      "id": "consectetur cillum dolore reprehenderit",
+      "type": "schema"
+    },
+    {
+      "attributes": {
+        "schema": {
+          "apiVersion": "v3",
+          "kind": "service",
+          "metadata": {
+            "name": "myService",
+            "additionalOwners": [
+              {
+                "name": "",
+                "type": "et Excepteur exercitation"
+              },
+              {
+                "name": "",
+                "type": "ea ipsum"
+              }
+            ],
+            "contacts": [
+              {
+                "type": "slack",
+                "contact": "https://slack/",
+                "name": "ea "
+              },
+              {
+                "type": "slack",
+                "contact": "https://slack/",
+                "name": "commodo minim nostrud Lorem"
+              }
+            ],
+            "description": "laboris nisi",
+            "displayName": "dolore dolor",
+            "id": "4b163705-23c0-4573-b2fb-f6cea2163fcb",
+            "inheritFrom": "application:default/myapp",
+            "links": [
+              {
+                "name": "mylink",
+                "type": "link",
+                "url": "https://mylink",
+                "provider": "eiusmod ad"
+              },
+              {
+                "name": "mylink",
+                "type": "link",
+                "url": "https://mylink",
+                "provider": "culpa deserunt ut"
+              }
+            ],
+            "managed": {
+              "Ut_9": {}
+            },
+            "namespace": "default",
+            "owner": "ad dolore voluptate nostrud esse",
+            "tags": [
+              "this:tag",
+              "that:tag"
+            ]
+          },
+          "datadog": {
+            "codeLocations": [
+              {
+                "paths": [
+                  "quis Duis",
+                  "adipisicing voluptate"
+                ],
+                "repositoryURL": "pariatur "
+              },
+              {
+                "paths": [
+                  "cillu",
+                  "non nisi in"
+                ],
+                "repositoryURL": "consequat incididunt nisi cillum"
+              }
+            ],
+            "events": [
+              {
+                "name": "dolor sint sit irure pariatur",
+                "query": "sunt et"
+              },
+              {
+                "name": "proident fugiat",
+                "query": "ullamco exercitation aliquip"
+              }
+            ],
+            "logs": [
+              {
+                "name": "reprehenderit laboris non et",
+                "query": "fugiat est"
+              },
+              {
+                "name": "qui labore",
+                "query": "anim magna"
+              }
+            ],
+            "performanceData": {
+              "tags": [
+                "in ullamco",
+                "id"
+              ]
+            },
+            "pipelines": {
+              "fingerprints": [
+                "aliquip",
+                "magna"
+              ]
+            }
+          },
+          "extensions": {
+            "aliqua_9": {}
+          },
+          "integrations": {
+            "opsgenie": {
+              "serviceURL": "https://www.opsgenie.com/service/shopping-cart",
+              "region": "reprehenderit pariatur eu"
+            },
+            "pagerduty": {
+              "serviceURL": "https://www.pagerduty.com/service-directory/Pshopping-cart"
+            }
+          },
+          "spec": {
+            "componentOf": [
+              "exercitation non ex sit ea",
+              "fugiat incididunt anim non"
+            ],
+            "dependsOn": [
+              "magna aliqua",
+              "sunt exercitation"
+            ],
+            "languages": [
+              "veniam nostrud quis tempor ea",
+              "ipsum ad tempor Duis"
+            ],
+            "lifecycle": "officia eiusmod",
+            "tier": "exercitation consectetur Lorem",
+            "type": "nostrud ex ad commodo"
+          }
+        }
+      },
+      "id": "dolore qui minim",
+      "type": "schema"
+    }
+  ],
+  "links": {
+    "next": "anim incididunt",
+    "previous": "eu",
+    "self": "enim aliqua c"
+  },
+  "meta": {
+    "count": -89079706,
+    "includeCount": 30075270
   }
 }
