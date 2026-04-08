@@ -50,20 +50,13 @@ async def lifespan(app: FastAPI):
     """
     FastAPI application lifespan context manager.
     
-    This context manager handles the complete lifecycle of the OrgGPT application,
-    using the modern FastAPI pattern (v0.93.0+). It replaces the deprecated
-    @app.on_event("startup") and @app.on_event("shutdown") decorators.
+    This context manager handles the complete lifecycle of the OrgGPT application.
     
     Architecture:
     - STARTUP PHASE: Initialize stateful resources (Datadog integration, vector store)
     - RUNNING PHASE: Application serves HTTP requests (marked by 'yield')
     - SHUTDOWN PHASE: Cleanup resources and log graceful shutdown
     
-    Key Benefits:
-    1. Single unified function (cleaner code structure)
-    2. Guaranteed cleanup execution (even on errors)
-    3. Future-proof (officially recommended by FastAPI)
-    4. Better async/await semantics
     
     Environment Variables:
     - DATADOG_POC_ENABLED: Whether to enable Datadog integration (default: "true")
