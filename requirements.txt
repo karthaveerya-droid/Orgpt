@@ -17,3 +17,4 @@ python-dotenv
 tqdm
 
 python-docx
+python-multipart
