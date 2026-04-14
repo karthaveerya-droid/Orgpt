@@ -80,18 +80,18 @@
     <h2>Orgpt Chat Interface</h2>
     
     <!-- Status Bar -->
-    <div id="status-bar" style="background: #f0f8ff; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #0056ff;">
+    <div id="status-bar" style="background: #f0fff0; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #00aa00;">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <span style="font-weight: 600;">Data Sources:</span>
-          <span id="datadog-status" style="margin-left: 1rem; color: #666;">📊 Datadog: <span style="color: #888;">Checking...</span></span>
+          <span style="font-weight: 600;">Active Data Source:</span>
+          <span id="active-source" style="margin-left: 1rem; color: #00aa00; font-weight: 600;">📝 Swagger Documentation</span>
         </div>
         <div>
-          <label style="margin-right: 1rem;">
-            <input type="radio" name="mode" value="general" checked /> General
+          <label style="margin-right: 0.5rem;">
+            <input type="radio" name="mode" value="swagger" checked /> 📝 Swagger
           </label>
           <label>
-            <input type="radio" name="mode" value="datadog" /> Datadog Topology
+            <input type="radio" name="mode" value="datadog_poc" /> 📊 Datadog
           </label>
         </div>
       </div>
@@ -111,56 +111,25 @@
     const queryInput = document.getElementById("query");
     const modeRadios = document.querySelectorAll('input[name="mode"]');
 
-    // Check Datadog status on load
-    async function checkDatadogStatus() {
-      try {
-        const response = await fetch("/api/datadog/status");
-        const data = await response.json();
-        
-        if (data.status === "ingested") {
-          document.getElementById("datadog-status").innerHTML = 
-            `📊 Datadog: <span style="color: #00aa00;">✓ Ready</span> (${data.document_count || '?'} docs)`;
-        } else if (data.status === "not_initialized") {
-          document.getElementById("datadog-status").innerHTML = 
-            `📊 Datadog: <span style="color: #ff9900;">⚠ Not ingested</span> - <a href="#" onclick="ingestDatadog(); return false;" style="color: #0056ff;">Ingest now</a>`;
-        }
-      } catch (err) {
-        document.getElementById("datadog-status").innerHTML = 
-          `📊 Datadog: <span style="color: #999;">⊗ Unavailable</span>`;
-      }
-    }
-
-    // Ingest Datadog data
-    async function ingestDatadog() {
-      const statusEl = document.getElementById("datadog-status");
-      statusEl.innerHTML = `📊 Datadog: <span style="color: #0056ff;">⟳ Ingesting...</span>`;
-      
-      try {
-        const response = await fetch("/api/datadog/ingest", { method: "POST" });
-        const data = await response.json();
-        
-        if (data.status === "success") {
-          statusEl.innerHTML = 
-            `📊 Datadog: <span style="color: #00aa00;">✓ Ready</span> (${data.document_count} docs)`;
-          alert(`✓ Ingested ${data.document_count} Datadog documents!`);
-        } else {
-          statusEl.innerHTML = 
-            `📊 Datadog: <span style="color: #ff0000;">✗ Failed</span>`;
-          alert(`Error: ${data.error}`);
-        }
-      } catch (err) {
-        statusEl.innerHTML = 
-          `📊 Datadog: <span style="color: #ff0000;">✗ Error</span>`;
-        alert(`Connection error: ${err.message}`);
-      }
-    }
-
-    // Update placeholder based on mode
+    // Update active source indicator and placeholder based on mode
     modeRadios.forEach(radio => {
       radio.addEventListener("change", (e) => {
-        if (e.target.value === "datadog") {
-          queryInput.placeholder = "Ask about service dependencies, SLOs, ownership...";
+        const statusBar = document.getElementById("status-bar");
+        const activeSource = document.getElementById("active-source");
+        
+        if (e.target.value === "datadog_poc") {
+          // Datadog mode
+          statusBar.style.borderLeft = "4px solid #ff9900";
+          statusBar.style.background = "#fff8e6";
+          activeSource.style.color = "#ff9900";
+          activeSource.innerHTML = "📊 Datadog";
+          queryInput.placeholder = "Ask about Datadog services...";
         } else {
+          // Swagger mode (default)
+          statusBar.style.borderLeft = "4px solid #00aa00";
+          statusBar.style.background = "#f0fff0";
+          activeSource.style.color = "#00aa00";
+          activeSource.innerHTML = "📝 Swagger Documentation";
           queryInput.placeholder = "Ask Orgpt about any API...";
         }
       });
@@ -178,16 +147,17 @@
       messages.scrollTop = messages.scrollHeight;
 
       try {
-        // Get selected mode
-        const mode = document.querySelector('input[name="mode"]:checked').value;
+        // Get selected mode (collection name)
+        const collection = document.querySelector('input[name="mode"]:checked').value;
         
-        // Choose endpoint
-        const endpoint = mode === "datadog" ? "/chat/datadog-specific" : "/chat";
-
-        const response = await fetch(endpoint, {
+        // Use unified /query endpoint with collection parameter
+        const response = await fetch("/query", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ query })
+          body: new URLSearchParams({ 
+            query: query,
+            collection: collection
+          })
         });
 
         const data = await response.json();
@@ -195,9 +165,14 @@
 
         // ✅ Handle both success and error cases
         if (data.answer) {
-          // Add source indicator
-          const source = mode === "datadog" ? "📊 Datadog" : "🔍 OrgGPT";
-          messages.innerHTML += `<div class="bot"><b>${source}:</b><pre>${data.answer}</pre></div>`;
+          // Add source indicator based on collection
+          const sourceIcons = {
+            "swagger": "📝 Swagger",
+            "datadog_poc": "📊 Datadog"
+          };
+          const source = sourceIcons[collection] || "🔍 OrgGPT";
+          const note = data.note ? `<div style="color: #ff9900; font-size: 0.9em; margin-top: 0.5rem;">ℹ️ ${data.note}</div>` : "";
+          messages.innerHTML += `<div class="bot"><b>${source}:</b><pre>${data.answer}</pre>${note}</div>`;
         } else if (data.error) {
           messages.innerHTML += `<div class="bot"><b>Error:</b> ${data.error}</div>`;
         } else {
@@ -210,12 +185,6 @@
         messages.innerHTML += `<div class="bot"><b>Error:</b> Unable to connect to backend.</div>`;
       }
     });
-
-    // Check status on page load
-    checkDatadogStatus();
-    
-    // Refresh status every 30 seconds
-    setInterval(checkDatadogStatus, 30000);
   </script>
 </body>
 </html>

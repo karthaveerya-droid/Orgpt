@@ -55,21 +55,33 @@ class DatadogConnector:
         docs = connector.catalog_transformer.transform_entities_batch(entities)
     """
     
-    def __init__(self, config: Optional[DatadogClientConfig] = None):
+    def __init__(self, config: Optional[DatadogClientConfig] = None, poc_mode: bool = False):
         """
         Initialize Datadog connector.
         
         Args:
             config: DatadogClientConfig instance. If None, creates default from env vars.
+            poc_mode: If True, skip API client initialization (for JSON-only usage)
         """
-        self.config = config or DatadogClientConfig()
-        self.client = DatadogAPIClient(self.config)
+        self.poc_mode = poc_mode
+        
+        if not poc_mode:
+            self.config = config or DatadogClientConfig()
+            self.client = DatadogAPIClient(self.config)
+        else:
+            # POC mode: no API client needed
+            self.config = None
+            self.client = None
+            logger.info("🎯 POC mode enabled - API client skipped")
         
         # ✨ Initialize Catalog Entity extractor and transformer
         if CATALOG_ENTITIES_AVAILABLE:
-            self.catalog_extractor = CatalogEntityExtractor(self.client)
+            if not poc_mode:
+                self.catalog_extractor = CatalogEntityExtractor(self.client)
+            else:
+                self.catalog_extractor = None  # Not needed for POC
             self.catalog_transformer = CatalogEntityTransformer()
-            logger.info("✓ Catalog Entity extractor and transformer initialized")
+            logger.info("✓ Catalog Entity transformer initialized")
         else:
             self.catalog_extractor = None
             self.catalog_transformer = None
@@ -149,6 +161,62 @@ class DatadogConnector:
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def extract_catalog_entities_from_json(self, json_file_path: str) -> List[Dict[str, Any]]:
+        """
+        Extract catalog entities from a local JSON file (POC mode).
+        
+        This method allows loading entities from a sample JSON file without requiring
+        API credentials. Useful for demonstrations and testing.
+        
+        Args:
+            json_file_path: Path to JSON file containing Datadog entities
+                           Expected format: {"data": [entity1, entity2, ...]}
+        
+        Returns:
+            List of catalog entity dictionaries ready for transformation
+        
+        Example:
+            >>> connector = DatadogConnector(config)
+            >>> entities = connector.extract_catalog_entities_from_json("sample_get_entities_list.json")
+        """
+        logger.info(f"📂 Loading Datadog entities from JSON file: {json_file_path}")
+        
+        try:
+            with open(json_file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Extract entities from the 'data' field (Datadog API format)
+            entities = data.get('data', [])
+            
+            if not entities:
+                logger.warning(f"No entities found in {json_file_path}")
+                return []
+            
+            logger.info(f"✅ Loaded {len(entities)} entities from JSON file")
+            
+            # Transform entities using the same transformer as API data
+            transformed_entities = []
+            for entity in entities:
+                try:
+                    transformed = self.catalog_transformer.transform_entity(entity)
+                    transformed_entities.append(transformed)
+                except Exception as e:
+                    logger.error(f"Error transforming entity: {e}")
+                    continue
+            
+            logger.info(f"✅ Transformed {len(transformed_entities)} entities successfully")
+            return transformed_entities
+            
+        except FileNotFoundError:
+            logger.error(f"❌ JSON file not found: {json_file_path}")
+            raise
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ Invalid JSON format in {json_file_path}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error loading entities from JSON: {e}", exc_info=True)
+            raise
 
 
 # Convenience function for direct ingestion

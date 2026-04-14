@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChromaDB Monitor - OrgGPT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-online {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-offline {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .status-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .collection-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .collection-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .collection-count {
+            color: #667eea;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .icon {
+            font-size: 1.3em;
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐳 ChromaDB Connection Monitor</h1>
+            <p class="subtitle">Real-time status of your vector database</p>
+        </header>
+        
+        <div id="content">
+            <div class="loading">
+                <p>🔄 Loading connection status...</p>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="refresh-btn" onclick="loadStatus()">🔄 Refresh Status</button>
+        </div>
+        
+        <div class="timestamp" id="timestamp"></div>
+    </div>
+    
+    <script>
+        async function loadStatus() {
+            const content = document.getElementById('content');
+            const timestamp = document.getElementById('timestamp');
+            
+            content.innerHTML = '<div class="loading"><p>🔄 Loading...</p></div>';
+            
+            try {
+                const response = await fetch('/chromadb/status');
+                const data = await response.json();
+                
+                let html = '<div class="status-grid">';
+                
+                // Docker Status Card
+                html += `
+                    <div class="card">
+                        <h2><span class="icon">🐳</span> Docker Status</h2>
+                        <div class="metric">
+                            <span class="metric-label">Container</span>
+                            <span class="metric-value">${data.docker.running ? '✅ Running' : '❌ Stopped'}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Health</span>
+                            <span class="metric-value">${data.docker.health || 'N/A'}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Port</span>
+                            <span class="metric-value">8000</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Connection Status Card
+                html += `
+                    <div class="card">
+                        <h2><span class="icon">🔗</span> Connection</h2>
+                        <div class="metric">
+                            <span class="metric-label">Status</span>
+                            <span class="status-badge ${data.connection.success ? 'status-online' : 'status-offline'}">
+                                ${data.connection.success ? 'CONNECTED' : 'DISCONNECTED'}
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Type</span>
+                            <span class="metric-value">${data.connection.type}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Heartbeat</span>
+                            <span class="metric-value">${data.connection.heartbeat || 'N/A'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Collections Card
+                html += `
+                    <div class="card">
+                        <h2><span class="icon">📊</span> Collections</h2>
+                        <div class="metric">
+                            <span class="metric-label">Total Collections</span>
+                            <span class="metric-value">${data.collections.length}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Documents</span>
+                            <span class="metric-value">${data.total_documents.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+                
+                html += '</div>';
+                
+                // Collections Details
+                if (data.collections.length > 0) {
+                    html += '<div class="card" style="margin-top: 20px;"><h2><span class="icon">📁</span> Collection Details</h2>';
+                    
+                    data.collections.forEach(col => {
+                        html += `
+                            <div class="collection-item">
+                                <div class="collection-name">${col.name}</div>
+                                <div class="metric">
+                                    <span class="metric-label">Documents</span>
+                                    <span class="collection-count">${col.count.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                }
+                
+                content.innerHTML = html;
+                
+                // Update timestamp
+                const now = new Date().toLocaleString();
+                timestamp.innerHTML = `Last updated: ${now}`;
+                
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error Loading Status</h3>
+                        <p>${error.message}</p>
+                        <p>Make sure the server is running and try again.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadStatus, 30000);
+        
+        // Load on page load
+        loadStatus();
+    </script>
+</body>
+</html>

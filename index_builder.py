@@ -7,11 +7,14 @@ Supports:
   1. Swagger API documentation
   2. Project documents
   3. Datadog Catalog Entities (/api/v2/catalog/entity) ✨
+  4. Datadog POC mode (JSON file, no API keys) 🎯
 
 Usage:
-    python index_builder.py                    # Build all indexes (default)
-    python index_builder.py swagger            # Build only Swagger
-    python index_builder.py datadog_catalog    # Build Catalog Entities ✨
+    python index_builder.py                            # Build all indexes (default)
+    python index_builder.py swagger                    # Build only Swagger
+    python index_builder.py datadog_catalog            # Build Catalog Entities ✨
+    python index_builder.py datadog_poc                # Build POC from JSON (no API keys) 🎯
+    python index_builder.py datadog_poc custom.json    # Build POC from custom JSON file
 """
 
 import os
@@ -45,6 +48,7 @@ class IndexBuilder:
         """Initialize builder with reusable components."""
         self.embedder = Embedder()
         self.datadog_connector = None
+        self.datadog_poc_connector = None
     
     def _get_datadog_connector(self) -> DatadogConnector:
         """Lazy load Datadog connector (only on demand)."""
@@ -52,6 +56,13 @@ class IndexBuilder:
             logger.info("Initializing Datadog connector...")
             self.datadog_connector = DatadogConnector()
         return self.datadog_connector
+    
+    def _get_datadog_poc_connector(self) -> DatadogConnector:
+        """Lazy load Datadog POC connector (no API keys)."""
+        if self.datadog_poc_connector is None:
+            logger.info("Initializing Datadog POC connector (no API keys)...")
+            self.datadog_poc_connector = DatadogConnector(poc_mode=True)
+        return self.datadog_poc_connector
     
     def _create_and_store_index(
         self,
@@ -164,6 +175,63 @@ class IndexBuilder:
             logger.error(f"⚠️  Datadog Catalog index failed: {e}\n")
             return False
 
+    def build_datadog_poc_index(self, json_file: str = "sample_get_entities_list.json") -> bool:
+        """
+        Build index from sample JSON file.
+        
+        This method demonstrates Datadog integration without requiring DD_API_KEY
+        or DD_APP_KEY. Perfect for presentations and testing.
+        
+        Args:
+            json_file: Path to JSON file containing Datadog entities
+                      (default: sample_get_entities_list.json)
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        logger.info("\n" + "="*80)
+        logger.info("📚 Building Datadog POC Index 🎯 (No API Keys Required)")
+        logger.info(f"📂 Using JSON file: {json_file}")
+        logger.info("="*80 + "\n")
+
+        try:
+            # Check if file exists
+            if not os.path.exists(json_file):
+                logger.error(f"❌ JSON file not found: {json_file}")
+                logger.info("ℹ️  Place your sample JSON file in the project root directory")
+                return False
+
+            # Step 1: Load entities from JSON
+            logger.info(f"Loading entities from JSON file: {json_file}")
+            connector = self._get_datadog_poc_connector()
+            entities = connector.extract_catalog_entities_from_json(json_file)
+            
+            if not entities:
+                logger.warning("No entities found in JSON file")
+                return False
+                
+            logger.info(f"✓ Loaded {len(entities)} entities from JSON")
+
+            # Step 2: Convert entities to documents (already transformed by extract method)
+            docs = entities  # Already transformed by extract_catalog_entities_from_json
+            logger.info(f"✓ Using {len(docs)} transformed documents")
+
+            # Step 3-5: Chunk, embed, store in separate POC collection
+            chunks = self._create_and_store_index(
+                documents=docs,
+                collection_name="datadog_poc",
+                id_prefix="datadog_poc"
+            )
+            
+            logger.info(f"✅ Datadog POC index built successfully ({chunks} chunks)")
+            logger.info(f"ℹ️  Collection: 'datadog_poc' (separate from production)")
+            logger.info(f"ℹ️  Source: {json_file}\n")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Datadog POC index failed: {e}\n", exc_info=True)
+            return False
+
     def build_all_indexes(self) -> bool:
         """
         Build all available indexes.
@@ -212,14 +280,20 @@ def main():
             success = builder.build_swagger_index()
         elif command == "datadog_catalog":
             success = builder.build_datadog_catalog_index()
+        elif command == "datadog_poc":
+            # Check if custom JSON file provided
+            json_file = sys.argv[2] if len(sys.argv) > 2 else "sample_get_entities_list.json"
+            success = builder.build_datadog_poc_index(json_file)
         elif command == "all":
             success = builder.build_all_indexes()
         else:
             logger.error(f"\n❌ Unknown command: {command}")
             logger.info("\nAvailable commands:")
-            logger.info("  python index_builder.py swagger           # Build Swagger index")
-            logger.info("  python index_builder.py datadog_catalog   # Build Catalog Entities ✨")
-            logger.info("  python index_builder.py all               # Build all indexes (default)")
+            logger.info("  python index_builder.py swagger                    # Build Swagger index")
+            logger.info("  python index_builder.py datadog_catalog            # Build Catalog Entities ✨")
+            logger.info("  python index_builder.py datadog_poc                # Build POC (no API keys) 🎯")
+            logger.info("  python index_builder.py datadog_poc custom.json    # Build POC from custom file")
+            logger.info("  python index_builder.py all                        # Build all indexes (default)")
             logger.info("")
             return 1
     else:

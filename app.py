@@ -28,7 +28,10 @@ templates = Jinja2Templates(directory="templates")
 # Serve root page
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("chat.html", {"request": request})
+    return templates.TemplateResponse(
+        request=request,
+        name="chat.html"
+    )
 
 # Chat endpoint
 @app.post("/chat")
