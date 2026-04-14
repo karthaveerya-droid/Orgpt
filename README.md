@@ -25,13 +25,7 @@ This project includes comprehensive documentation across multiple files:
 | Document | Size | Purpose | Audience |
 |----------|------|---------|----------|
 | **[README.md](README.md)** (This file) | 30KB | Complete technical documentation | Developers, DevOps |
-| **[EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md)** | 13KB | High-level project overview | Executives, Managers |
 | **[QUICKSTART.md](QUICKSTART.md)** | 3KB | Quick reference card | All users |
-| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | 11KB | Visual project summary | Stakeholders |
-
-**💡 New to OrgGPT?** Start with [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md) for a quick overview, then refer to this file for detailed technical information.
-
-**⚡ Want to get started immediately?** See [QUICKSTART.md](QUICKSTART.md) for essential commands.
 
 ---
 
