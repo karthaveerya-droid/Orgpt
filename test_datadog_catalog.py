@@ -4,7 +4,7 @@ test_datadog_catalog.py
 =======================
 Testing script for Datadog Catalog Entity POC.
 
-Tests the new Catalog Entity API integration (/api/v2/catalog/entity) ✨
+Tests the new Catalog Entity API integration (/api/v2/catalog/entity) 
 
 Run: python test_datadog_catalog.py
 """
@@ -105,7 +105,7 @@ def test_datadog_client():
             DatadogAPIClient
         )
         
-        logger.info("✓ Imports successful")
+        logger.info("Imports successful")
         
         # Create mock config with dummy credentials
         with patch('ingestion.Datadog_connector.datadog_client.os.getenv') as mock_getenv:
@@ -121,11 +121,11 @@ def test_datadog_client():
             
             # Create config
             config = DatadogClientConfig()
-            logger.info(f"✓ Config created (site: {config.site})")
+            logger.info(f"Config created (site: {config.site})")
             
             # Create client
             client = DatadogAPIClient(config)
-            logger.info("✓ Client initialized")
+            logger.info("Client initialized")
             
             # Mock the API response
             with patch.object(client, 'get') as mock_get:
@@ -138,7 +138,7 @@ def test_datadog_client():
                 
                 logger.info("Testing API connectivity to /api/v2/catalog/entity (mocked)...")
                 response = client.get("/api/v2/catalog/entity", params={"page[limit]": 1})
-                logger.info(f"✓ API call successful. Got {len(response.get('data', []))} entities")
+                logger.info(f"API call successful. Got {len(response.get('data', []))} entities")
         
         return True
     
@@ -148,9 +148,9 @@ def test_datadog_client():
 
 
 def test_catalog_extractor():
-    """Test 2: Catalog Entity Extractor ✨"""
+    """Test 2: Catalog Entity Extractor """
     print("\n" + "="*80)
-    print("TEST 2: Catalog Entity Extractor ✨")
+    print("TEST 2: Catalog Entity Extractor ")
     print("="*80)
     
     try:
@@ -171,7 +171,7 @@ def test_catalog_extractor():
             max_pages=5
         )
         
-        logger.info(f"✓ Extracted {len(entities)} catalog entities")
+        logger.info(f"Extracted {len(entities)} catalog entities")
         
         if entities:
             first_entity = entities[0]
@@ -187,9 +187,9 @@ def test_catalog_extractor():
 
 
 def test_catalog_transformer():
-    """Test 3: Catalog Entity Transformer ✨"""
+    """Test 3: Catalog Entity Transformer """
     print("\n" + "="*80)
-    print("TEST 3: Catalog Entity Transformer ✨")
+    print("TEST 3: Catalog Entity Transformer ")
     print("="*80)
     
     try:
@@ -222,7 +222,7 @@ def test_catalog_transformer():
         logger.info("Transforming entity to markdown...")
         doc = transformer.transform_entity(sample_entity)
         
-        logger.info(f"✓ Transformation successful")
+        logger.info(f"Transformation successful")
         logger.info(f"  Document length: {len(doc)} characters")
         logger.info(f"  First 200 chars:\n{doc[:200]}...")
         
@@ -236,7 +236,7 @@ def test_catalog_transformer():
 def test_connector():
     """Test 4: Full DatadogConnector (Catalog Entity)"""
     print("\n" + "="*80)
-    print("TEST 4: DatadogConnector (Catalog Entity Integration) ✨")
+    print("TEST 4: DatadogConnector (Catalog Entity Integration) ")
     print("="*80)
     
     try:
@@ -252,12 +252,12 @@ def test_connector():
             max_pages=1
         )
         
-        logger.info(f"✓ Extracted {len(entities)} entities")
+        logger.info(f"Extracted {len(entities)} entities")
         
         if entities:
             logger.info("Transforming entities to documents...")
             docs = connector.catalog_transformer.transform_entities_batch(entities)
-            logger.info(f"✓ Transformed to {len(docs)} documents")
+            logger.info(f"Transformed to {len(docs)} documents")
             
             if docs:
                 logger.info(f"  Sample document length: {len(docs[0])} characters")
@@ -272,7 +272,7 @@ def test_connector():
 def test_vector_store_integration():
     """Test 5: Vector Store Integration (Catalog Entity) with mock"""
     print("\n" + "="*80)
-    print("TEST 5: Vector Store Integration ✨")
+    print("TEST 5: Vector Store Integration ")
     print("="*80)
     
     try:
@@ -302,7 +302,7 @@ def test_vector_store_integration():
             logger.info("Ingesting Datadog Catalog data (mocked)...")
             result = integration.ingest_datadog_data()
             
-            logger.info(f"✓ Ingestion result: {result['status']}")
+            logger.info(f"Ingestion result: {result['status']}")
             if result['status'] == 'success':
                 logger.info(f"  Entities: {result.get('entity_count', 0)}")
                 logger.info(f"  Documents: {result.get('document_count', 0)}")
@@ -317,7 +317,7 @@ def test_vector_store_integration():
 def test_index_builder():
     """Test 6: Index Builder (Catalog Entity) with mock"""
     print("\n" + "="*80)
-    print("TEST 6: Index Builder with Catalog Entity ✨")
+    print("TEST 6: Index Builder with Catalog Entity ")
     print("="*80)
     
     try:
@@ -343,7 +343,7 @@ def test_index_builder():
             logger.info("Building Datadog Catalog index (mocked)...")
             success = builder.build_datadog_catalog_index()
             
-            logger.info(f"✓ Index build {'successful' if success else 'failed'}")
+            logger.info(f"Index build {'successful' if success else 'failed'}")
         
         return success
     
@@ -356,7 +356,7 @@ def run_all_tests():
     """Run all Datadog Catalog Entity tests in sequence"""
     print("\n" + "█" * 80)
     print("█" + " " * 78 + "█")
-    print("█  DATADOG CATALOG ENTITY POC - TEST SUITE ✨" + " " * 32 + "█")
+    print("█  DATADOG CATALOG ENTITY POC - TEST SUITE " + " " * 32 + "█")
     print("█" + " " * 78 + "█")
     print("█" * 80)
     
@@ -381,11 +381,11 @@ def run_all_tests():
     
     # Summary
     print("\n" + "="*80)
-    print("📊 TEST SUMMARY")
+    print("TEST SUMMARY")
     print("="*80)
     
     for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "PASS" if result else "FAIL"
         print(f"{status}: {name}")
     
     total_passed = sum(1 for r in results.values() if r)

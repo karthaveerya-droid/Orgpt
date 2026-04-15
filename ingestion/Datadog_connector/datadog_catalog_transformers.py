@@ -339,7 +339,7 @@ class CatalogEntityTransformer:
             except Exception as e:
                 logger.error(f"Error transforming entity {i}: {e}")
         
-        logger.info(f"✓ Transformed {len(docs)} entities to documents")
+        logger.info(f"Transformed {len(docs)} entities to documents")
         return docs
     
     def transform_dependency_graph(

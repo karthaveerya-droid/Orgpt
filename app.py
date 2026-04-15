@@ -10,10 +10,10 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
-# ✅ ensure local modules can be imported when using uvicorn
+# ensure local modules can be imported when using uvicorn
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# ✅ imports based on your actual folder structure
+# imports based on your actual folder structure
 from ingestion.swagger_connector import extract_text_from_swagger_sources
 from processing.chunker import chunk_texts
 from processing.embedder import Embedder

@@ -429,7 +429,7 @@ class SLOTransformer:
             except Exception as e:
                 logger.error(f"Error transforming SLO {i}: {e}")
         
-        logger.info(f"✅ Transformed {len(docs)} SLOs to documents")
+        logger.info(f"Transformed {len(docs)} SLOs to documents")
         return docs
     
     def transform_corrections_batch(
@@ -460,7 +460,7 @@ class SLOTransformer:
             except Exception as e:
                 logger.error(f"Error transforming correction {i}: {e}")
         
-        logger.info(f"✅ Transformed {len(docs)} corrections to documents")
+        logger.info(f"Transformed {len(docs)} corrections to documents")
         return docs
     
     def create_consolidated_slo_doc(

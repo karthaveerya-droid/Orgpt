@@ -89,7 +89,7 @@ class SLOExtractor:
             limit = self.MAX_LIMIT
         
         try:
-            logger.info(f"📊 Extracting SLOs (offset={offset}, limit={limit})...")
+            logger.info(f"Extracting SLOs (offset={offset}, limit={limit})...")
             
             params = {
                 "offset": offset,
@@ -113,12 +113,12 @@ class SLOExtractor:
             
             slos = response.get("data", [])
             
-            logger.info(f"✅ Extracted {len(slos)} SLOs")
+            logger.info(f"Extracted {len(slos)} SLOs")
             
             return slos
         
         except Exception as e:
-            logger.error(f"❌ Error extracting SLOs: {e}", exc_info=True)
+            logger.error(f"Error extracting SLOs: {e}", exc_info=True)
             raise
     
     def extract_slo_by_id(self, slo_id: str) -> Dict[str, Any]:
@@ -135,19 +135,19 @@ class SLOExtractor:
             requests.HTTPError: On API errors (404 if not found)
         """
         try:
-            logger.info(f"📊 Extracting SLO: {slo_id}")
+            logger.info(f"Extracting SLO: {slo_id}")
             
             endpoint = f"{self.API_ENDPOINT_SLOS}/{slo_id}"
             response = self.client.get(endpoint)
             
             slo = response.get("data", {})
             
-            logger.info(f"✅ Extracted SLO: {slo.get('name', slo_id)}")
+            logger.info(f"Extracted SLO: {slo.get('name', slo_id)}")
             
             return slo
         
         except Exception as e:
-            logger.error(f"❌ Error extracting SLO {slo_id}: {e}", exc_info=True)
+            logger.error(f"Error extracting SLO {slo_id}: {e}", exc_info=True)
             raise
     
     def extract_slo_corrections(
@@ -197,7 +197,7 @@ class SLOExtractor:
             limit = self.MAX_LIMIT
         
         try:
-            logger.info(f"🛠️  Extracting SLO corrections (slo_id={slo_id or 'all'})...")
+            logger.info(f" Extracting SLO corrections (slo_id={slo_id or 'all'})...")
             
             params = {
                 "offset": offset,
@@ -214,12 +214,12 @@ class SLOExtractor:
             
             corrections = response.get("data", [])
             
-            logger.info(f"✅ Extracted {len(corrections)} SLO corrections")
+            logger.info(f"Extracted {len(corrections)} SLO corrections")
             
             return corrections
         
         except Exception as e:
-            logger.error(f"❌ Error extracting SLO corrections: {e}", exc_info=True)
+            logger.error(f"Error extracting SLO corrections: {e}", exc_info=True)
             raise
     
     def extract_slo_history(
@@ -263,7 +263,7 @@ class SLOExtractor:
             }
         """
         try:
-            logger.info(f"📈 Extracting SLO history for {slo_id} ({from_ts} to {to_ts})")
+            logger.info(f"Extracting SLO history for {slo_id} ({from_ts} to {to_ts})")
             
             endpoint = f"{self.API_ENDPOINT_SLOS}/{slo_id}/history"
             
@@ -277,12 +277,12 @@ class SLOExtractor:
             
             response = self.client.get(endpoint, params=params)
             
-            logger.info(f"✅ Extracted SLO history for {slo_id}")
+            logger.info(f"Extracted SLO history for {slo_id}")
             
             return response.get("data", {})
         
         except Exception as e:
-            logger.error(f"❌ Error extracting SLO history for {slo_id}: {e}", exc_info=True)
+            logger.error(f"Error extracting SLO history for {slo_id}: {e}", exc_info=True)
             raise
     
     def extract_all_paginated(
@@ -306,7 +306,7 @@ class SLOExtractor:
         offset = 0
         page = 1
         
-        logger.info(f"🔄 Starting paginated SLO extraction (max_pages={max_pages})")
+        logger.info(f"Starting paginated SLO extraction (max_pages={max_pages})")
         
         while page <= max_pages:
             try:
@@ -318,7 +318,7 @@ class SLOExtractor:
                 )
                 
                 if not slos:
-                    logger.info(f"✅ Pagination complete - no more SLOs (page {page})")
+                    logger.info(f"Pagination complete - no more SLOs (page {page})")
                     break
                 
                 all_slos.extend(slos)
@@ -326,16 +326,16 @@ class SLOExtractor:
                 
                 # Check if we got less than limit (last page)
                 if len(slos) < self.DEFAULT_LIMIT:
-                    logger.info(f"✅ Pagination complete - partial page received")
+                    logger.info(f"Pagination complete - partial page received")
                     break
                 
                 offset += self.DEFAULT_LIMIT
                 page += 1
             
             except Exception as e:
-                logger.error(f"❌ Error on page {page}: {e}")
+                logger.error(f"Error on page {page}: {e}")
                 break
         
-        logger.info(f"✅ Extracted total of {len(all_slos)} SLOs across {page} pages")
+        logger.info(f"Extracted total of {len(all_slos)} SLOs across {page} pages")
         
         return all_slos

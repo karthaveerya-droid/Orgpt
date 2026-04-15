@@ -27,7 +27,7 @@ class Embedder:
             from sentence_transformers import SentenceTransformer
             self.model = SentenceTransformer(model_name, device=device)
             self.backend = "sentence-transformers"
-            logger.info(f"✅ Using SentenceTransformer backend: {model_name}")
+            logger.info(f"Using SentenceTransformer backend: {model_name}")
         except Exception as e:
             logger.warning(f"SentenceTransformer backend unavailable: {e}")
             try:
@@ -38,9 +38,9 @@ class Embedder:
                 self.model = AutoModel.from_pretrained(model_name)
                 self.backend = "transformers"
                 self.torch = torch
-                logger.info(f"✅ Using Transformers fallback backend: {model_name}")
+                logger.info(f"Using Transformers fallback backend: {model_name}")
             except Exception as e2:
-                logger.error(f"❌ No embedding backend available ({e2}). Falling back to random.")
+                logger.error(f"No embedding backend available ({e2}). Falling back to random.")
                 self.backend = "none"
 
     def embed(self, texts):
@@ -70,5 +70,5 @@ class Embedder:
 
         # --- no backend: dummy random vectors ---
         else:
-            logger.warning("⚠️ Returning random embeddings (no model available).")
+            logger.warning("Returning random embeddings (no model available).")
             return np.random.rand(len(texts), 384)

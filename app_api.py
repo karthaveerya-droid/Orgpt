@@ -79,7 +79,7 @@ async def chat(query: str = Form(...), collection: str = Form("swagger")):
     except Exception as e:
         return JSONResponse({"error": str(e)})
 
-# 🎯 POC Datadog query endpoint
+# POC Datadog query endpoint
 @app.post("/query/datadog-poc")
 async def query_datadog_poc(query: str = Form(...)):
     """
@@ -87,7 +87,7 @@ async def query_datadog_poc(query: str = Form(...)):
     Perfect for demonstrations!
     """
     try:
-        print(f"\n🎯 POC Query: {query}")
+        print(f"\nPOC Query: {query}")
         rag = RAGEngine(store_name="datadog_poc")
         answer = rag.ask(query)
         return JSONResponse({
@@ -145,11 +145,11 @@ async def chromadb_status():
             docker_status = result.stdout.strip()
             
             if "healthy" in docker_status.lower():
-                status["docker"]["health"] = "✅ Healthy"
+                status["docker"]["health"] = "Healthy"
             elif "unhealthy" in docker_status.lower():
-                status["docker"]["health"] = "⚠️ Unhealthy (may still work)"
+                status["docker"]["health"] = "Unhealthy (may still work)"
             else:
-                status["docker"]["health"] = "🔄 Starting"
+                status["docker"]["health"] = "Starting"
     except:
         pass
     

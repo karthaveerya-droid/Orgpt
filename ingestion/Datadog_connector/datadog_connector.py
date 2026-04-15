@@ -16,8 +16,8 @@ Architecture:
   - Connector: Orchestrates the flow
 
 Data Sources:
-  - /api/v2/catalog/entity ✨ (CatalogEntityExtractor + CatalogEntityTransformer)
-  - /api/v1/slo ✨ (SLOExtractor + SLOTransformer)
+  - /api/v2/catalog/entity (CatalogEntityExtractor + CatalogEntityTransformer)
+  - /api/v1/slo (SLOExtractor + SLOTransformer)
 """
 
 import os
@@ -28,7 +28,7 @@ import json
 
 from .datadog_client import DatadogAPIClient, DatadogClientConfig
 
-# ✨ CATALOG ENTITY IMPORTS
+# CATALOG ENTITY IMPORTS
 try:
     from .datadog_catalog_extractor import CatalogEntityExtractor
     from .datadog_catalog_transformers import CatalogEntityTransformer
@@ -38,7 +38,7 @@ except ImportError:
     logger_temp = logging.getLogger(__name__)
     logger_temp.warning("CatalogEntityExtractor or CatalogEntityTransformer not found. Catalog Entity extraction disabled.")
 
-# ✨ SLO IMPORTS
+# SLO IMPORTS
 try:
     from .datadog_slo_extractor import SLOExtractor
     from .datadog_slo_transformer import SLOTransformer
@@ -58,8 +58,8 @@ class DatadogConnector:
     Main connector for Datadog API integration.
     
     Supports:
-    - Catalog Entity API (/api/v2/catalog/entity) ✨
-    - SLO API (/api/v1/slo) ✨
+    - Catalog Entity API (/api/v2/catalog/entity) 
+    - SLO API (/api/v1/slo) 
     
     Follows Open/Closed Principle:
       - Closed for modification (stable core)
@@ -93,39 +93,39 @@ class DatadogConnector:
             # POC mode: no API client needed
             self.config = None
             self.client = None
-            logger.info("🎯 POC mode enabled - API client skipped")
+            logger.info("POC mode enabled - API client skipped")
         
-        # ✨ Initialize Catalog Entity extractor and transformer
+        # Initialize Catalog Entity extractor and transformer
         if CATALOG_ENTITIES_AVAILABLE:
             if not poc_mode:
                 self.catalog_extractor = CatalogEntityExtractor(self.client)
             else:
                 self.catalog_extractor = None  # Not needed for POC
             self.catalog_transformer = CatalogEntityTransformer()
-            logger.info("✓ Catalog Entity transformer initialized")
+            logger.info("Catalog Entity transformer initialized")
         else:
             self.catalog_extractor = None
             self.catalog_transformer = None
-            logger.warning("⚠️  Catalog Entity support disabled - modules not found")
+            logger.warning(" Catalog Entity support disabled - modules not found")
         
-        # ✨ Initialize SLO extractor and transformer
+        # Initialize SLO extractor and transformer
         if SLO_AVAILABLE:
             if not poc_mode:
                 self.slo_extractor = SLOExtractor(self.client)
             else:
                 self.slo_extractor = None  # Not needed for POC
             self.slo_transformer = SLOTransformer()
-            logger.info("✓ SLO transformer initialized")
+            logger.info("SLO transformer initialized")
         else:
             self.slo_extractor = None
             self.slo_transformer = None
-            logger.warning("⚠️  SLO support disabled - modules not found")
+            logger.warning(" SLO support disabled - modules not found")
         
         # Cache for extracted data
         self._cache: Dict[str, Any] = {}
         self._last_sync: Optional[datetime] = None
     
-    # ✨ NEW METHOD
+    # NEW METHOD
     def extract_catalog_entities(
         self,
         kinds: Optional[List[str]] = None,
@@ -160,7 +160,7 @@ class DatadogConnector:
             raise RuntimeError("Catalog Entity extractor not initialized")
         
         try:
-            logger.info("🔄 Extracting Catalog Entities...")
+            logger.info("Extracting Catalog Entities...")
             entities = self.catalog_extractor.extract_paginated_entities(
                 kinds=kinds or ["service"],
                 limit=limit,
@@ -171,14 +171,14 @@ class DatadogConnector:
             self._cache["catalog_entities"] = entities
             self._last_sync = datetime.now()
             
-            logger.info(f"✓ Successfully extracted {len(entities)} catalog entities")
+            logger.info(f"Successfully extracted {len(entities)} catalog entities")
             return entities
             
         except Exception as e:
             logger.error(f"✗ Error extracting catalog entities: {e}")
             raise
     
-    # ✨ NEW METHODS FOR SLO
+    # NEW METHODS FOR SLO
     def extract_slos(
         self,
         query: Optional[str] = None,
@@ -215,7 +215,7 @@ class DatadogConnector:
             raise RuntimeError("SLO extractor not initialized")
         
         try:
-            logger.info("🔄 Extracting SLOs...")
+            logger.info("Extracting SLOs...")
             
             if max_pages:
                 slos = []
@@ -247,7 +247,7 @@ class DatadogConnector:
             self._cache["slos"] = slos
             self._last_sync = datetime.now()
             
-            logger.info(f"✓ Successfully extracted {len(slos)} SLOs")
+            logger.info(f"Successfully extracted {len(slos)} SLOs")
             return slos
             
         except Exception as e:
@@ -280,7 +280,7 @@ class DatadogConnector:
             raise RuntimeError("SLO extractor not initialized")
         
         try:
-            logger.info(f"🔄 Extracting SLO corrections (slo_id={slo_id or 'all'})...")
+            logger.info(f"Extracting SLO corrections (slo_id={slo_id or 'all'})...")
             
             corrections = self.slo_extractor.extract_slo_corrections(
                 slo_id=slo_id,
@@ -291,7 +291,7 @@ class DatadogConnector:
             cache_key = f"corrections_{slo_id or 'all'}"
             self._cache[cache_key] = corrections
             
-            logger.info(f"✓ Successfully extracted {len(corrections)} corrections")
+            logger.info(f"Successfully extracted {len(corrections)} corrections")
             return corrections
             
         except Exception as e:
@@ -323,7 +323,7 @@ class DatadogConnector:
                 "Ensure datadog_slo_transformer.py exists."
             )
         
-        logger.info(f"📂 Loading Datadog SLOs from JSON file: {json_file_path}")
+        logger.info(f"Loading Datadog SLOs from JSON file: {json_file_path}")
         
         try:
             with open(json_file_path, 'r', encoding='utf-8') as f:
@@ -336,7 +336,7 @@ class DatadogConnector:
                 logger.warning(f"No SLOs found in {json_file_path}")
                 return []
             
-            logger.info(f"✅ Loaded {len(slos)} SLOs from JSON file")
+            logger.info(f"Loaded {len(slos)} SLOs from JSON file")
             
             # Cache result
             self._cache["slos_from_json"] = slos
@@ -345,13 +345,13 @@ class DatadogConnector:
             return slos
             
         except FileNotFoundError:
-            logger.error(f"❌ JSON file not found: {json_file_path}")
+            logger.error(f"JSON file not found: {json_file_path}")
             raise
         except json.JSONDecodeError as e:
-            logger.error(f"❌ Invalid JSON format in {json_file_path}: {e}")
+            logger.error(f"Invalid JSON format in {json_file_path}: {e}")
             raise
         except Exception as e:
-            logger.error(f"❌ Error loading SLOs from JSON: {e}", exc_info=True)
+            logger.error(f"Error loading SLOs from JSON: {e}", exc_info=True)
             raise
     
     def get_cache(self) -> Dict[str, Any]:
@@ -390,7 +390,7 @@ class DatadogConnector:
             >>> connector = DatadogConnector(config)
             >>> entities = connector.extract_catalog_entities_from_json("sample_get_entities_list.json")
         """
-        logger.info(f"📂 Loading Datadog entities from JSON file: {json_file_path}")
+        logger.info(f"Loading Datadog entities from JSON file: {json_file_path}")
         
         try:
             with open(json_file_path, 'r', encoding='utf-8') as f:
@@ -403,7 +403,7 @@ class DatadogConnector:
                 logger.warning(f"No entities found in {json_file_path}")
                 return []
             
-            logger.info(f"✅ Loaded {len(entities)} entities from JSON file")
+            logger.info(f"Loaded {len(entities)} entities from JSON file")
             
             # Transform entities using the same transformer as API data
             transformed_entities = []
@@ -415,17 +415,17 @@ class DatadogConnector:
                     logger.error(f"Error transforming entity: {e}")
                     continue
             
-            logger.info(f"✅ Transformed {len(transformed_entities)} entities successfully")
+            logger.info(f"Transformed {len(transformed_entities)} entities successfully")
             return transformed_entities
             
         except FileNotFoundError:
-            logger.error(f"❌ JSON file not found: {json_file_path}")
+            logger.error(f"JSON file not found: {json_file_path}")
             raise
         except json.JSONDecodeError as e:
-            logger.error(f"❌ Invalid JSON format in {json_file_path}: {e}")
+            logger.error(f"Invalid JSON format in {json_file_path}: {e}")
             raise
         except Exception as e:
-            logger.error(f"❌ Error loading entities from JSON: {e}", exc_info=True)
+            logger.error(f"Error loading entities from JSON: {e}", exc_info=True)
             raise
 
 

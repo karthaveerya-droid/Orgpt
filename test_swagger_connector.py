@@ -121,7 +121,7 @@ MOCK_SWAGGER_SPEC = {
 def test_swagger_helpers():
     """Test 1: Swagger Helpers (extract_full_api_spec, render_api_to_text)"""
     print("\n" + "="*80)
-    print("TEST 1: Swagger Helpers ✨")
+    print("TEST 1: Swagger Helpers ")
     print("="*80)
     
     try:
@@ -136,7 +136,7 @@ def test_swagger_helpers():
         logger.info("Extracting API specification from mock...")
         api_info = extract_full_api_spec(MOCK_SWAGGER_SPEC)
         
-        logger.info(f"✓ Extracted API: {api_info.get('title')}")
+        logger.info(f"Extracted API: {api_info.get('title')}")
         logger.info(f"  Version: {api_info.get('version')}")
         logger.info(f"  Description: {api_info.get('description')}")
         
@@ -145,14 +145,14 @@ def test_swagger_helpers():
         logger.info(f"  Endpoints: {len(paths)}")
         
         if not paths:
-            logger.warning("⚠️  No paths found in API spec")
+            logger.warning(" No paths found in API spec")
             return False
         
         # Step 3: Render to text
         logger.info("Rendering API documentation to text...")
         docs = render_api_to_text(api_info)
         
-        logger.info(f"✓ Generated {len(docs)} text documents")
+        logger.info(f"Generated {len(docs)} text documents")
         
         if docs:
             logger.info(f"  Sample doc length: {len(docs[0])} characters")
@@ -168,7 +168,7 @@ def test_swagger_helpers():
 def test_swagger_connector():
     """Test 2: Swagger Connector (extract_text_from_swagger_sources)"""
     print("\n" + "="*80)
-    print("TEST 2: Swagger Connector ✨")
+    print("TEST 2: Swagger Connector ")
     print("="*80)
     
     try:
@@ -183,10 +183,10 @@ def test_swagger_connector():
             logger.info("Extracting text from Swagger sources (mocked)...")
             docs = extract_text_from_swagger_sources()
             
-            logger.info(f"✓ Extracted {len(docs)} documents from Swagger sources")
+            logger.info(f"Extracted {len(docs)} documents from Swagger sources")
             
             if not docs:
-                logger.warning("⚠️  No documents extracted")
+                logger.warning(" No documents extracted")
                 return False
             
             # Check first document
@@ -204,7 +204,7 @@ def test_swagger_connector():
 def test_swagger_index_builder():
     """Test 3: Swagger Integration with Index Builder"""
     print("\n" + "="*80)
-    print("TEST 3: Swagger + Index Builder Integration ✨")
+    print("TEST 3: Swagger + Index Builder Integration ")
     print("="*80)
     
     try:
@@ -226,7 +226,7 @@ def test_swagger_index_builder():
             logger.info("Building Swagger index (mocked)...")
             success = builder.build_swagger_index()
             
-            logger.info(f"✓ Index build {'successful' if success else 'failed'}")
+            logger.info(f"Index build {'successful' if success else 'failed'}")
             
             if success:
                 logger.info(f"  Mock documents processed: {len(mock_docs)}")
@@ -243,7 +243,7 @@ def test_swagger_index_builder():
 def test_swagger_multiple_specs():
     """Test 4: Multiple Swagger Specs Processing"""
     print("\n" + "="*80)
-    print("TEST 4: Multiple Swagger Specs ✨")
+    print("TEST 4: Multiple Swagger Specs ")
     print("="*80)
     
     try:
@@ -308,10 +308,10 @@ def test_swagger_multiple_specs():
             api_info = extract_full_api_spec(spec)
             docs = render_api_to_text(api_info)
             
-            logger.info(f"  ✓ {api_name}: {len(docs)} documents")
+            logger.info(f"  {api_name}: {len(docs)} documents")
             total_docs += len(docs)
         
-        logger.info(f"\n✓ Total documents from multiple specs: {total_docs}")
+        logger.info(f"\nTotal documents from multiple specs: {total_docs}")
         
         return total_docs > 0
     
@@ -328,7 +328,7 @@ def run_all_tests():
     """Run all Swagger connector tests in sequence"""
     print("\n" + "█" * 80)
     print("█" + " " * 78 + "█")
-    print("█  SWAGGER CONNECTOR TEST SUITE ✨" + " " * 45 + "█")
+    print("█  SWAGGER CONNECTOR TEST SUITE " + " " * 45 + "█")
     print("█" + " " * 78 + "█")
     print("█" * 80)
     
@@ -351,11 +351,11 @@ def run_all_tests():
     
     # Summary
     print("\n" + "="*80)
-    print("📊 TEST SUMMARY")
+    print("TEST SUMMARY")
     print("="*80)
     
     for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "PASS" if result else "FAIL"
         print(f"{status}: {name}")
     
     total_passed = sum(1 for r in results.values() if r)

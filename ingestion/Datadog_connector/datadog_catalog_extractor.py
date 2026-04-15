@@ -105,7 +105,7 @@ class CatalogEntityExtractor:
             meta = response.get("meta", {})
             
             logger.info(
-                f"✓ Extracted {len(entities)} entities "
+                f"Extracted {len(entities)} entities "
                 f"(total available: {meta.get('count', 'unknown')})"
             )
             
@@ -162,7 +162,7 @@ class CatalogEntityExtractor:
             
             entity = entities[0]
             logger.info(
-                f"✓ Found entity: {ref} "
+                f"Found entity: {ref} "
                 f"({entity.get('attributes', {}).get('displayName', 'Unknown')})"
             )
             
@@ -249,7 +249,7 @@ class CatalogEntityExtractor:
             response = self.client.get(self.API_ENDPOINT, params=params)
             entities = response.get("data", [])
             
-            logger.info(f"✓ Found {len(entities)} entities for owner: {owner}")
+            logger.info(f"Found {len(entities)} entities for owner: {owner}")
             return entities
             
         except Exception as e:
@@ -288,7 +288,7 @@ class CatalogEntityExtractor:
             response = self.client.get(self.API_ENDPOINT, params=params)
             entities = response.get("data", [])
             
-            logger.info(f"✓ Found {len(entities)} entities matching: {name}")
+            logger.info(f"Found {len(entities)} entities matching: {name}")
             return entities
             
         except Exception as e:
@@ -326,7 +326,7 @@ class CatalogEntityExtractor:
             response = self.client.get(self.API_ENDPOINT, params=params)
             entities = response.get("data", [])
             
-            logger.info(f"✓ Found {len(entities)} dependencies for: {service_ref}")
+            logger.info(f"Found {len(entities)} dependencies for: {service_ref}")
             return entities
             
         except Exception as e:
@@ -360,7 +360,7 @@ class CatalogEntityExtractor:
             response = self.client.get(self.API_ENDPOINT, params=params)
             entities = response.get("data", [])
             
-            logger.info(f"✓ Found {len(entities)} dependents for: {service_ref}")
+            logger.info(f"Found {len(entities)} dependents for: {service_ref}")
             return entities
             
         except Exception as e:
@@ -427,7 +427,7 @@ class CatalogEntityExtractor:
                 )
             
             logger.info(
-                f"✓ Total entities extracted: {len(all_entities)} ({page_count} pages)"
+                f"Total entities extracted: {len(all_entities)} ({page_count} pages)"
             )
             return all_entities
             
@@ -474,7 +474,7 @@ class CatalogEntityExtractor:
                             filtered.append(entity)
                             break
             
-            logger.info(f"✓ Found {len(filtered)} entities with tag: {tag_key}={tag_value}")
+            logger.info(f"Found {len(filtered)} entities with tag: {tag_key}={tag_value}")
             return filtered
             
         except Exception as e:

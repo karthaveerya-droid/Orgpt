@@ -46,22 +46,22 @@ class DatadogVectorStoreIntegration:
         Returns:
             Ingestion metadata (counts, timestamps, etc.)
         """
-        logger.info("🔄 Starting Datadog data ingestion (Catalog Entity API)...")
+        logger.info("Starting Datadog data ingestion (Catalog Entity API)...")
         
         try:
-            # Extract data from Datadog Catalog Entity API ✨
+            # Extract data from Datadog Catalog Entity API 
             connector = DatadogConnector()
             entities = connector.extract_catalog_entities()
             
             if not entities:
-                logger.warning("⚠️  No catalog entities extracted from Datadog")
+                logger.warning(" No catalog entities extracted from Datadog")
                 return {"status": "no_data", "entity_count": 0}
             
             # Transform entities to RAG-ready documents
             docs = connector.catalog_transformer.transform_entities_batch(entities)
             
             if not docs:
-                logger.warning("⚠️  No documents generated from entities")
+                logger.warning(" No documents generated from entities")
                 return {"status": "no_data", "document_count": 0}
             
             # Transform documents to embeddings and add to store
@@ -70,7 +70,7 @@ class DatadogVectorStoreIntegration:
             for i, doc in enumerate(docs):
                 doc_id = self._generate_doc_id(doc)
                 metadata = {
-                    "source": "datadog_catalog_entity",  # ✨ Updated to Catalog Entity
+                    "source": "datadog_catalog_entity",  # Updated to Catalog Entity
                     "ingested_at": datetime.now().isoformat(),
                     "doc_index": i,
                 }
@@ -98,7 +98,7 @@ class DatadogVectorStoreIntegration:
             
             self._ingestion_history["last_successful"] = ingestion_record
             
-            logger.info(f"✅ Ingested {len(entities)} Catalog Entities ({len(docs)} documents) into vector store")
+            logger.info(f"Ingested {len(entities)} Catalog Entities ({len(docs)} documents) into vector store")
             
             return {
                 "status": "success",
@@ -108,7 +108,7 @@ class DatadogVectorStoreIntegration:
             }
         
         except Exception as e:
-            logger.error(f"❌ Error during ingestion: {e}", exc_info=True)
+            logger.error(f"Error during ingestion: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
     
     def ingest_slo_data(
@@ -133,7 +133,7 @@ class DatadogVectorStoreIntegration:
             # From API (production mode)
             result = integration.ingest_slo_data(include_corrections=True)
         """
-        logger.info("🔄 Starting SLO data ingestion...")
+        logger.info("Starting SLO data ingestion...")
         
         try:
             # Extract data from Datadog SLO API or JSON file
@@ -147,14 +147,14 @@ class DatadogVectorStoreIntegration:
                 slos = connector.extract_slos()
             
             if not slos:
-                logger.warning("⚠️  No SLOs extracted from Datadog")
+                logger.warning(" No SLOs extracted from Datadog")
                 return {"status": "no_data", "slo_count": 0}
             
             # Transform SLOs to RAG-ready documents
             docs = connector.slo_transformer.transform_slos_batch(slos)
             
             if not docs:
-                logger.warning("⚠️  No documents generated from SLOs")
+                logger.warning(" No documents generated from SLOs")
                 return {"status": "no_data", "document_count": 0}
             
             # Add to vector store
@@ -200,9 +200,9 @@ class DatadogVectorStoreIntegration:
                         )
                     
                     correction_count = len(correction_docs)
-                    logger.info(f"✅ Ingested {correction_count} SLO corrections")
+                    logger.info(f"Ingested {correction_count} SLO corrections")
                 except Exception as e:
-                    logger.warning(f"⚠️  Could not ingest SLO corrections: {e}")
+                    logger.warning(f" Could not ingest SLO corrections: {e}")
             
             # Record ingestion history
             ingestion_record = {
@@ -216,7 +216,7 @@ class DatadogVectorStoreIntegration:
             
             self._ingestion_history["last_successful_slo"] = ingestion_record
             
-            logger.info(f"✅ Ingested {len(slos)} SLOs ({len(docs)} documents) into vector store")
+            logger.info(f"Ingested {len(slos)} SLOs ({len(docs)} documents) into vector store")
             
             return {
                 "status": "success",
@@ -227,7 +227,7 @@ class DatadogVectorStoreIntegration:
             }
         
         except Exception as e:
-            logger.error(f"❌ Error during SLO ingestion: {e}", exc_info=True)
+            logger.error(f"Error during SLO ingestion: {e}", exc_info=True)
             return {"status": "error", "error": str(e)}
     
     def ingest_all_datadog_sources(
@@ -277,7 +277,7 @@ class DatadogVectorStoreIntegration:
         results["total_documents"] = total_docs
         results["overall_status"] = "success" if total_docs > 0 else "partial_failure"
         
-        logger.info(f"✅ Ingestion complete: {total_docs} total documents from {len(results['sources'])} sources")
+        logger.info(f"Ingestion complete: {total_docs} total documents from {len(results['sources'])} sources")
         
         return results
     

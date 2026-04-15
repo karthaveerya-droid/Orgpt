@@ -16,7 +16,7 @@ class VectorStore:
             # Docker HTTP client
             host = os.getenv("CHROMA_HOST", "localhost")
             port = int(os.getenv("CHROMA_PORT", "8000"))
-            print(f"🐳 Connecting to ChromaDB Docker at {host}:{port}")
+            print(f"Connecting to ChromaDB Docker at {host}:{port}")
             client = chromadb.HttpClient(host=host, port=port)
         else:
             # Local persistent client
@@ -25,7 +25,7 @@ class VectorStore:
             client = chromadb.PersistentClient(path=db_path)
         
         self.collection = client.get_or_create_collection(collection_name)
-        print(f"✅ Collection '{collection_name}' ready ({self.collection.count()} docs)")
+        print(f"Collection '{collection_name}' ready ({self.collection.count()} docs)")
 
     def add(self, ids, texts, embeddings, metadata=None):
         self.collection.add(ids=ids, documents=texts, embeddings=embeddings, metadatas=metadata)

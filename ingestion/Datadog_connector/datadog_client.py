@@ -108,7 +108,7 @@ class DatadogAPIClient:
                 timeout=self.config.timeout,
             )
             response.raise_for_status()
-            logger.debug(f"✓ GET {endpoint} - Status: {response.status_code}")
+            logger.debug(f"GET {endpoint} - Status: {response.status_code}")
             return response.json()
         except requests.exceptions.HTTPError as e:
             logger.error(f"✗ HTTP Error on GET {endpoint}: {e}")
@@ -130,7 +130,7 @@ class DatadogAPIClient:
                 timeout=self.config.timeout,
             )
             response.raise_for_status()
-            logger.debug(f"✓ POST {endpoint} - Status: {response.status_code}")
+            logger.debug(f"POST {endpoint} - Status: {response.status_code}")
             return response.json()
         except requests.exceptions.HTTPError as e:
             logger.error(f"✗ HTTP Error on POST {endpoint}: {e}")

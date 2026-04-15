@@ -6,17 +6,17 @@ Multi-source index builder for OrgGPT.
 Supports:
   1. Swagger API documentation
   2. Project documents
-  3. Datadog Catalog Entities (/api/v2/catalog/entity) ✨
-  4. Datadog SLOs (/api/v1/slo) ✨
-  5. Datadog POC mode (JSON files, no API keys) 🎯
+  3. Datadog Catalog Entities (/api/v2/catalog/entity) 
+  4. Datadog SLOs (/api/v1/slo) 
+  5. Datadog POC mode (JSON files, no API keys) 
 
 Usage:
     python index_builder.py                            # Build all indexes (default)
     python index_builder.py swagger                    # Build only Swagger
-    python index_builder.py datadog_catalog            # Build Catalog Entities ✨
-    python index_builder.py datadog_slo                # Build SLOs ✨
-    python index_builder.py datadog_poc                # Build POC from JSON (no API keys) 🎯
-    python index_builder.py datadog_slo_poc            # Build SLO POC from JSON 🎯
+    python index_builder.py datadog_catalog            # Build Catalog Entities 
+    python index_builder.py datadog_slo                # Build SLOs 
+    python index_builder.py datadog_poc                # Build POC from JSON (no API keys) 
+    python index_builder.py datadog_slo_poc            # Build SLO POC from JSON 
     python index_builder.py datadog_poc custom.json    # Build POC from custom JSON file
 """
 
@@ -87,19 +87,19 @@ class IndexBuilder:
         # Step 1: Chunk texts
         logger.info(f"Chunking {len(documents)} documents...")
         chunks = chunk_texts(documents)
-        logger.info(f"✓ Chunked into {len(chunks)} segments")
+        logger.info(f"Chunked into {len(chunks)} segments")
 
         # Step 2: Create embeddings
         logger.info(f"Creating embeddings for {len(chunks)} chunks...")
         embeddings = self.embedder.embed(chunks)
-        logger.info(f"✓ Created {len(embeddings)} embeddings")
+        logger.info(f"Created {len(embeddings)} embeddings")
 
         # Step 3: Store in VectorStore
         logger.info(f"Storing in VectorStore collection '{collection_name}'...")
         vs = VectorStore(collection_name)
         ids = [f"{id_prefix}_chunk_{i}" for i in range(len(chunks))]
         vs.add(ids=ids, texts=chunks, embeddings=embeddings)
-        logger.info(f"✓ Stored {len(chunks)} chunks in collection '{collection_name}'\n")
+        logger.info(f"Stored {len(chunks)} chunks in collection '{collection_name}'\n")
         
         return len(chunks)
 
@@ -111,14 +111,14 @@ class IndexBuilder:
             True if successful, False otherwise
         """
         logger.info("\n" + "="*80)
-        logger.info("📚 Building Swagger Index")
+        logger.info("Building Swagger Index")
         logger.info("="*80 + "\n")
 
         try:
             # Step 1: Extract docs
             logger.info("Extracting Swagger documentation...")
             docs = extract_text_from_swagger_sources() + extract_text_from_docs()
-            logger.info(f"✓ Extracted {len(docs)} documents")
+            logger.info(f"Extracted {len(docs)} documents")
 
             # Step 2-4: Chunk, embed, store
             chunks = self._create_and_store_index(
@@ -127,11 +127,11 @@ class IndexBuilder:
                 id_prefix="swagger"
             )
             
-            logger.info(f"✅ Swagger index built successfully ({chunks} chunks)\n")
+            logger.info(f"Swagger index built successfully ({chunks} chunks)\n")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Swagger index failed: {e}\n")
+            logger.error(f"Swagger index failed: {e}\n")
             return False
 
     def build_datadog_catalog_index(self) -> bool:
@@ -144,7 +144,7 @@ class IndexBuilder:
             True if successful, False otherwise
         """
         logger.info("\n" + "="*80)
-        logger.info("📚 Building Datadog Catalog Entity Index ✨ (/api/v2/catalog/entity)")
+        logger.info("Building Datadog Catalog Entity Index (/api/v2/catalog/entity)")
         logger.info("="*80 + "\n")
 
         try:
@@ -157,12 +157,12 @@ class IndexBuilder:
                 logger.warning("No catalog entities found")
                 return False
                 
-            logger.info(f"✓ Extracted {len(entities)} catalog entities")
+            logger.info(f"Extracted {len(entities)} catalog entities")
 
             # Step 2: Transform to documents
             logger.info("Transforming entities using CatalogEntityTransformer...")
             docs = connector.catalog_transformer.transform_entities_batch(entities)
-            logger.info(f"✓ Transformed {len(docs)} entities to documents")
+            logger.info(f"Transformed {len(docs)} entities to documents")
 
             # Step 3-5: Chunk, embed, store
             chunks = self._create_and_store_index(
@@ -171,11 +171,11 @@ class IndexBuilder:
                 id_prefix="datadog_catalog"
             )
             
-            logger.info(f"✅ Datadog Catalog index built successfully ({chunks} chunks)\n")
+            logger.info(f"Datadog Catalog index built successfully ({chunks} chunks)\n")
             return True
             
         except Exception as e:
-            logger.error(f"⚠️  Datadog Catalog index failed: {e}\n")
+            logger.error(f" Datadog Catalog index failed: {e}\n")
             return False
 
     def build_datadog_poc_index(self, json_file: str = "sample_get_entities_list.json") -> bool:
@@ -193,15 +193,15 @@ class IndexBuilder:
             True if successful, False otherwise
         """
         logger.info("\n" + "="*80)
-        logger.info("📚 Building Datadog POC Index 🎯 (No API Keys Required)")
-        logger.info(f"📂 Using JSON file: {json_file}")
+        logger.info("Building Datadog POC Index (No API Keys Required)")
+        logger.info(f"Using JSON file: {json_file}")
         logger.info("="*80 + "\n")
 
         try:
             # Check if file exists
             if not os.path.exists(json_file):
-                logger.error(f"❌ JSON file not found: {json_file}")
-                logger.info("ℹ️  Place your sample JSON file in the project root directory")
+                logger.error(f"JSON file not found: {json_file}")
+                logger.info(" Place your sample JSON file in the project root directory")
                 return False
 
             # Step 1: Load entities from JSON
@@ -213,11 +213,11 @@ class IndexBuilder:
                 logger.warning("No entities found in JSON file")
                 return False
                 
-            logger.info(f"✓ Loaded {len(entities)} entities from JSON")
+            logger.info(f"Loaded {len(entities)} entities from JSON")
 
             # Step 2: Convert entities to documents (already transformed by extract method)
             docs = entities  # Already transformed by extract_catalog_entities_from_json
-            logger.info(f"✓ Using {len(docs)} transformed documents")
+            logger.info(f"Using {len(docs)} transformed documents")
 
             # Step 3-5: Chunk, embed, store in separate POC collection
             chunks = self._create_and_store_index(
@@ -226,13 +226,13 @@ class IndexBuilder:
                 id_prefix="datadog_poc"
             )
             
-            logger.info(f"✅ Datadog POC index built successfully ({chunks} chunks)")
-            logger.info(f"ℹ️  Collection: 'datadog_poc' (separate from production)")
-            logger.info(f"ℹ️  Source: {json_file}\n")
+            logger.info(f"Datadog POC index built successfully ({chunks} chunks)")
+            logger.info(f" Collection: 'datadog_poc' (separate from production)")
+            logger.info(f" Source: {json_file}\n")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Datadog POC index failed: {e}\n", exc_info=True)
+            logger.error(f"Datadog POC index failed: {e}\n", exc_info=True)
             return False
     
     def build_datadog_slo_index(self) -> bool:
@@ -243,7 +243,7 @@ class IndexBuilder:
             True if successful, False otherwise
         """
         logger.info("\n" + "="*80)
-        logger.info("📚 Building Datadog SLO Index ✨ (/api/v1/slo)")
+        logger.info("Building Datadog SLO Index (/api/v1/slo)")
         logger.info("="*80 + "\n")
 
         try:
@@ -256,12 +256,12 @@ class IndexBuilder:
                 logger.warning("No SLOs found")
                 return False
                 
-            logger.info(f"✓ Extracted {len(slos)} SLOs")
+            logger.info(f"Extracted {len(slos)} SLOs")
 
             # Step 2: Transform to documents
             logger.info("Transforming SLOs using SLOTransformer...")
             docs = connector.slo_transformer.transform_slos_batch(slos)
-            logger.info(f"✓ Transformed {len(docs)} SLOs to documents")
+            logger.info(f"Transformed {len(docs)} SLOs to documents")
 
             # Step 3-5: Chunk, embed, store
             chunks = self._create_and_store_index(
@@ -270,11 +270,11 @@ class IndexBuilder:
                 id_prefix="datadog_slo"
             )
             
-            logger.info(f"✅ Datadog SLO index built successfully ({chunks} chunks)\n")
+            logger.info(f"Datadog SLO index built successfully ({chunks} chunks)\n")
             return True
             
         except Exception as e:
-            logger.error(f"⚠️  Datadog SLO index failed: {e}\n")
+            logger.error(f" Datadog SLO index failed: {e}\n")
             return False
     
     def build_datadog_slo_poc_index(self, json_file: str = "sample_get_slo_list.json") -> bool:
@@ -292,15 +292,15 @@ class IndexBuilder:
             True if successful, False otherwise
         """
         logger.info("\n" + "="*80)
-        logger.info("📚 Building Datadog SLO POC Index 🎯 (No API Keys Required)")
-        logger.info(f"📂 Using JSON file: {json_file}")
+        logger.info("Building Datadog SLO POC Index (No API Keys Required)")
+        logger.info(f"Using JSON file: {json_file}")
         logger.info("="*80 + "\n")
 
         try:
             # Check if file exists
             if not os.path.exists(json_file):
-                logger.error(f"❌ JSON file not found: {json_file}")
-                logger.info("ℹ️  Place your sample JSON file in the project root directory")
+                logger.error(f"JSON file not found: {json_file}")
+                logger.info(" Place your sample JSON file in the project root directory")
                 return False
 
             # Step 1: Load SLOs from JSON
@@ -312,12 +312,12 @@ class IndexBuilder:
                 logger.warning("No SLOs found in JSON file")
                 return False
                 
-            logger.info(f"✓ Loaded {len(slos)} SLOs from JSON")
+            logger.info(f"Loaded {len(slos)} SLOs from JSON")
 
             # Step 2: Transform to documents
             logger.info("Transforming SLOs using SLOTransformer...")
             docs = connector.slo_transformer.transform_slos_batch(slos)
-            logger.info(f"✓ Transformed {len(docs)} SLOs to documents")
+            logger.info(f"Transformed {len(docs)} SLOs to documents")
 
             # Step 3-5: Chunk, embed, store in separate POC collection
             chunks = self._create_and_store_index(
@@ -326,13 +326,13 @@ class IndexBuilder:
                 id_prefix="datadog_slo_poc"
             )
             
-            logger.info(f"✅ Datadog SLO POC index built successfully ({chunks} chunks)")
-            logger.info(f"ℹ️  Collection: 'datadog_slo_poc' (separate from production)")
-            logger.info(f"ℹ️  Source: {json_file}\n")
+            logger.info(f"Datadog SLO POC index built successfully ({chunks} chunks)")
+            logger.info(f" Collection: 'datadog_slo_poc' (separate from production)")
+            logger.info(f" Source: {json_file}\n")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Datadog SLO POC index failed: {e}\n", exc_info=True)
+            logger.error(f"Datadog SLO POC index failed: {e}\n", exc_info=True)
             return False
 
     def build_all_indexes(self) -> bool:
@@ -343,7 +343,7 @@ class IndexBuilder:
             True if at least one index succeeded
         """
         logger.info("\n" + "="*80)
-        logger.info("🚀 BUILDING ALL INDEXES")
+        logger.info("BUILDING ALL INDEXES")
         logger.info("="*80)
 
         results = {}
@@ -359,11 +359,11 @@ class IndexBuilder:
 
         # Summary
         logger.info("="*80)
-        logger.info("📊 INDEX BUILD SUMMARY")
+        logger.info("INDEX BUILD SUMMARY")
         logger.info("="*80)
         
         for name, success in results.items():
-            status = "✅" if success else "❌"
+            status = "" if success else ""
             logger.info(f"{status} {name}")
         
         total_success = sum(1 for v in results.values() if v)
@@ -399,13 +399,13 @@ def main():
         elif command == "all":
             success = builder.build_all_indexes()
         else:
-            logger.error(f"\n❌ Unknown command: {command}")
+            logger.error(f"\nUnknown command: {command}")
             logger.info("\nAvailable commands:")
             logger.info("  python index_builder.py swagger                    # Build Swagger index")
-            logger.info("  python index_builder.py datadog_catalog            # Build Catalog Entities ✨")
-            logger.info("  python index_builder.py datadog_slo                # Build SLOs ✨")
-            logger.info("  python index_builder.py datadog_poc                # Build Catalog POC (no API keys) 🎯")
-            logger.info("  python index_builder.py datadog_slo_poc            # Build SLO POC (no API keys) 🎯")
+            logger.info("  python index_builder.py datadog_catalog            # Build Catalog Entities ")
+            logger.info("  python index_builder.py datadog_slo                # Build SLOs ")
+            logger.info("  python index_builder.py datadog_poc                # Build Catalog POC (no API keys) ")
+            logger.info("  python index_builder.py datadog_slo_poc            # Build SLO POC (no API keys) ")
             logger.info("  python index_builder.py datadog_poc custom.json    # Build POC from custom file")
             logger.info("  python index_builder.py all                        # Build all indexes (default)")
             logger.info("")

@@ -65,7 +65,7 @@ async def chat(query: str = Form(...)):
 
         answer = query_orgpt(query)
 
-        # ✅ make sure answer is printable + serializable
+        # make sure answer is printable + serializable
         if not isinstance(answer, str):
             answer = str(answer)
 

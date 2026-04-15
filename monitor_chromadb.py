@@ -20,7 +20,7 @@ def get_chroma_info():
     """Get comprehensive ChromaDB information"""
     
     # Try HTTP Client (Docker)
-    print_header("🐳 DOCKER CHROMADB CONNECTION")
+    print_header("DOCKER CHROMADB CONNECTION")
     
     try:
         host = os.getenv("CHROMA_HOST", "localhost")
@@ -31,12 +31,12 @@ def get_chroma_info():
         
         # Test connection with heartbeat
         heartbeat = client.heartbeat()
-        print(f"✅ Connection: SUCCESS")
+        print(f"Connection: SUCCESS")
         print(f"💓 Heartbeat: {heartbeat}")
         
         # Get collections
         collections = client.list_collections()
-        print(f"\n📊 Collections: {len(collections)} found\n")
+        print(f"\nCollections: {len(collections)} found\n")
         
         total_docs = 0
         for i, col in enumerate(collections, 1):
@@ -54,13 +54,13 @@ def get_chroma_info():
             print()
         
         print_separator("-")
-        print(f"📈 Total Documents Across All Collections: {total_docs:,}")
+        print(f"Total Documents Across All Collections: {total_docs:,}")
         print_separator("-")
         
         return True, client, collections
         
     except Exception as e:
-        print(f"❌ Connection: FAILED")
+        print(f"Connection: FAILED")
         print(f"   Error: {e}\n")
         
         # Try local persistent client
@@ -68,13 +68,13 @@ def get_chroma_info():
         
         try:
             db_path = "./chroma_db"
-            print(f"📂 Connecting to: {db_path}")
+            print(f"Connecting to: {db_path}")
             
             client = chromadb.PersistentClient(path=db_path)
             collections = client.list_collections()
             
-            print(f"✅ Connection: SUCCESS")
-            print(f"\n📊 Collections: {len(collections)} found\n")
+            print(f"Connection: SUCCESS")
+            print(f"\nCollections: {len(collections)} found\n")
             
             total_docs = 0
             for i, col in enumerate(collections, 1):
@@ -84,19 +84,19 @@ def get_chroma_info():
                 print(f"   └─ Documents: {count:,}\n")
             
             print_separator("-")
-            print(f"📈 Total Documents: {total_docs:,}")
+            print(f"Total Documents: {total_docs:,}")
             print_separator("-")
             
             return True, client, collections
             
         except Exception as e2:
-            print(f"❌ Connection: FAILED")
+            print(f"Connection: FAILED")
             print(f"   Error: {e2}\n")
             return False, None, None
 
 def query_collection(client, collection_name, query_text):
     """Test query on a collection"""
-    print_header(f"🔍 QUERY TEST: {collection_name}")
+    print_header(f"QUERY TEST: {collection_name}")
     
     try:
         collection = client.get_collection(collection_name)
@@ -127,12 +127,12 @@ def query_collection(client, collection_name, query_text):
         return True
         
     except Exception as e:
-        print(f"❌ Query failed: {e}")
+        print(f"Query failed: {e}")
         return False
 
 def check_docker_status():
     """Check if Docker container is running"""
-    print_header("🐳 DOCKER STATUS")
+    print_header("DOCKER STATUS")
     
     import subprocess
     
@@ -151,23 +151,23 @@ def check_docker_status():
             
             # Check if healthy
             if "healthy" in status.lower():
-                print(f"Health: ✅ HEALTHY")
+                print(f"Health: HEALTHY")
             elif "unhealthy" in status.lower():
-                print(f"Health: ⚠️ UNHEALTHY (but may still work)")
+                print(f"Health: UNHEALTHY (but may still work)")
             else:
-                print(f"Health: 🔄 STARTING")
+                print(f"Health: STARTING")
             
             return True
         else:
-            print("❌ Container 'orgpt-chromadb' is not running")
-            print("\n💡 Start it with: docker-compose up -d chromadb")
+            print("Container 'orgpt-chromadb' is not running")
+            print("\nStart it with: docker-compose up -d chromadb")
             return False
             
     except FileNotFoundError:
-        print("❌ Docker is not installed or not in PATH")
+        print("Docker is not installed or not in PATH")
         return False
     except Exception as e:
-        print(f"❌ Error checking Docker: {e}")
+        print(f"Error checking Docker: {e}")
         return False
 
 def main():
@@ -191,9 +191,9 @@ def main():
     
     if not success:
         print("\n" + "=" * 80)
-        print("❌ Could not connect to ChromaDB")
+        print("Could not connect to ChromaDB")
         print("=" * 80)
-        print("\n💡 Troubleshooting:")
+        print("\nTroubleshooting:")
         print("   1. Start Docker ChromaDB: docker-compose up -d chromadb")
         print("   2. Set environment: export CHROMA_CLIENT_TYPE=http")
         print("   3. Check logs: docker-compose logs chromadb")
@@ -201,7 +201,7 @@ def main():
     
     # Interactive mode
     print("\n" + "=" * 80)
-    print("💡 Connection successful! What would you like to do?")
+    print("Connection successful! What would you like to do?")
     print("=" * 80)
     print("\nOptions:")
     print("  1. Test a query")
@@ -224,7 +224,7 @@ def main():
             col_name = collections[col_idx].name
             query_collection(client, col_name, query)
         except (ValueError, IndexError):
-            print("❌ Invalid collection number")
+            print("Invalid collection number")
     
     elif choice == "2":
         for col in collections:
@@ -254,10 +254,10 @@ def main():
         with open(filename, 'w') as f:
             json.dump(output, f, indent=2)
         
-        print(f"\n✅ Status exported to: {filename}")
+        print(f"\nStatus exported to: {filename}")
     
     print("\n" + "=" * 80)
-    print("✨ Done!")
+    print("Done!")
     print("=" * 80 + "\n")
 
 if __name__ == "__main__":
@@ -266,6 +266,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\n\n👋 Interrupted by user. Goodbye!")
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}")
+        print(f"\nUnexpected error: {e}")
         import traceback
         traceback.print_exc()

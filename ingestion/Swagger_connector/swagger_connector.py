@@ -42,7 +42,7 @@ def extract_text_from_swagger_sources():
                 print('-'*60)
 
         except Exception as e:
-            print(f"❌ Failed for {name}: {e}")
+            print(f"Failed for {name}: {e}")
 
     return all_docs
 
@@ -53,6 +53,6 @@ if __name__ == "__main__":
     docs = extract_text_from_swagger_sources()
 
     print("\n" + "="*80)
-    print("✅ Summary")
+    print("Summary")
     print("="*80)
     print(f"Total text docs: {len(docs)}")

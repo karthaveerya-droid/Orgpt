@@ -4,7 +4,7 @@ test_datadog_slo.py
 ===================
 Testing script for Datadog SLO Integration.
 
-Tests the SLO API integration (/api/v1/slo) ✨
+Tests the SLO API integration (/api/v1/slo) 
 
 Run: python test_datadog_slo.py
 """
@@ -131,14 +131,14 @@ MOCK_CORRECTIONS = [
 def test_slo_extractor():
     """Test 1: SLO Extractor"""
     print("\n" + "="*80)
-    print("TEST 1: SLO Extractor ✨")
+    print("TEST 1: SLO Extractor ")
     print("="*80)
     
     try:
         from ingestion.Datadog_connector.datadog_client import DatadogClientConfig, DatadogAPIClient
         from ingestion.Datadog_connector.datadog_slo_extractor import SLOExtractor
         
-        logger.info("✓ Imports successful")
+        logger.info("Imports successful")
         
         # Create mock client
         with patch('ingestion.Datadog_connector.datadog_client.os.getenv') as mock_getenv:
@@ -165,7 +165,7 @@ def test_slo_extractor():
                 logger.info("Extracting SLOs...")
                 slos = extractor.extract_all_slos(limit=100)
                 
-                logger.info(f"✓ Extracted {len(slos)} SLOs")
+                logger.info(f"Extracted {len(slos)} SLOs")
                 
                 if slos:
                     first_slo = slos[0]
@@ -185,7 +185,7 @@ def test_slo_extractor():
 def test_slo_transformer():
     """Test 2: SLO Transformer"""
     print("\n" + "="*80)
-    print("TEST 2: SLO Transformer ✨")
+    print("TEST 2: SLO Transformer ")
     print("="*80)
     
     try:
@@ -200,14 +200,14 @@ def test_slo_transformer():
         logger.info("Transforming SLO to markdown...")
         doc = transformer.transform_slo(sample_slo)
         
-        logger.info(f"✓ Transformation successful")
+        logger.info(f"Transformation successful")
         logger.info(f"  Document length: {len(doc)} characters")
         logger.info(f"  First 300 chars:\n{doc[:300]}...")
         
         # Test batch transformation
         logger.info("\nTesting batch transformation...")
         docs = transformer.transform_slos_batch(MOCK_SLOS)
-        logger.info(f"✓ Batch transformation successful: {len(docs)} documents")
+        logger.info(f"Batch transformation successful: {len(docs)} documents")
         
         return True
     
@@ -219,7 +219,7 @@ def test_slo_transformer():
 def test_correction_transformer():
     """Test 3: SLO Correction Transformer"""
     print("\n" + "="*80)
-    print("TEST 3: SLO Correction Transformer ✨")
+    print("TEST 3: SLO Correction Transformer ")
     print("="*80)
     
     try:
@@ -234,14 +234,14 @@ def test_correction_transformer():
         logger.info("Transforming correction to markdown...")
         doc = transformer.transform_slo_correction(sample_correction)
         
-        logger.info(f"✓ Transformation successful")
+        logger.info(f"Transformation successful")
         logger.info(f"  Document length: {len(doc)} characters")
         logger.info(f"  First 300 chars:\n{doc[:300]}...")
         
         # Test batch transformation
         logger.info("\nTesting batch transformation...")
         docs = transformer.transform_corrections_batch(MOCK_CORRECTIONS)
-        logger.info(f"✓ Batch transformation successful: {len(docs)} documents")
+        logger.info(f"Batch transformation successful: {len(docs)} documents")
         
         return True
     
@@ -253,7 +253,7 @@ def test_correction_transformer():
 def test_slo_connector():
     """Test 4: DatadogConnector with SLO support"""
     print("\n" + "="*80)
-    print("TEST 4: DatadogConnector (SLO Integration) ✨")
+    print("TEST 4: DatadogConnector (SLO Integration) ")
     print("="*80)
     
     try:
@@ -268,12 +268,12 @@ def test_slo_connector():
             logger.info(f"Loading SLOs from {json_file}...")
             slos = connector.extract_slos_from_json(json_file)
             
-            logger.info(f"✓ Loaded {len(slos)} SLOs from JSON")
+            logger.info(f"Loaded {len(slos)} SLOs from JSON")
             
             if slos:
                 logger.info("Transforming SLOs to documents...")
                 docs = connector.slo_transformer.transform_slos_batch(slos)
-                logger.info(f"✓ Transformed to {len(docs)} documents")
+                logger.info(f"Transformed to {len(docs)} documents")
                 
                 if docs:
                     logger.info(f"  First document preview:\n{docs[0][:200]}...")
@@ -288,11 +288,11 @@ def test_slo_connector():
                 logger.info("Extracting SLOs (mocked)...")
                 slos = mock_extract()
                 
-                logger.info(f"✓ Extracted {len(slos)} SLOs")
+                logger.info(f"Extracted {len(slos)} SLOs")
                 
                 logger.info("Transforming SLOs to documents...")
                 docs = connector.slo_transformer.transform_slos_batch(slos)
-                logger.info(f"✓ Transformed to {len(docs)} documents")
+                logger.info(f"Transformed to {len(docs)} documents")
         
         return True
     
@@ -304,7 +304,7 @@ def test_slo_connector():
 def test_vector_store_integration():
     """Test 5: Vector Store Integration with SLOs"""
     print("\n" + "="*80)
-    print("TEST 5: Vector Store Integration (SLO) ✨")
+    print("TEST 5: Vector Store Integration (SLO) ")
     print("="*80)
     
     try:
@@ -334,7 +334,7 @@ def test_vector_store_integration():
             logger.info("Ingesting SLO data (mocked)...")
             result = integration.ingest_slo_data(json_file_path="sample_get_slo_list.json")
             
-            logger.info(f"✓ Ingestion result: {result['status']}")
+            logger.info(f"Ingestion result: {result['status']}")
             if result['status'] == 'success':
                 logger.info(f"  SLO count: {result.get('slo_count', 0)}")
                 logger.info(f"  Document count: {result.get('document_count', 0)}")
@@ -349,7 +349,7 @@ def test_vector_store_integration():
 def test_index_builder():
     """Test 6: Index Builder with SLO support"""
     print("\n" + "="*80)
-    print("TEST 6: Index Builder (SLO POC) ✨")
+    print("TEST 6: Index Builder (SLO POC) ")
     print("="*80)
     
     try:
@@ -364,7 +364,7 @@ def test_index_builder():
             logger.info(f"Building SLO POC index from {json_file}...")
             success = builder.build_datadog_slo_poc_index(json_file)
             
-            logger.info(f"✓ Index build {'successful' if success else 'failed'}")
+            logger.info(f"Index build {'successful' if success else 'failed'}")
         else:
             logger.warning(f"JSON file not found: {json_file}")
             logger.info("Testing with mock data instead...")
@@ -386,7 +386,7 @@ def test_index_builder():
                 logger.info("Building SLO POC index (mocked)...")
                 success = builder.build_datadog_slo_poc_index(json_file)
                 
-                logger.info(f"✓ Index build {'successful' if success else 'failed'}")
+                logger.info(f"Index build {'successful' if success else 'failed'}")
         
         return success
     
@@ -399,7 +399,7 @@ def run_all_tests():
     """Run all Datadog SLO tests in sequence"""
     print("\n" + "█" * 80)
     print("█" + " " * 78 + "█")
-    print("█  DATADOG SLO INTEGRATION - TEST SUITE ✨" + " " * 36 + "█")
+    print("█  DATADOG SLO INTEGRATION - TEST SUITE " + " " * 36 + "█")
     print("█" + " " * 78 + "█")
     print("█" * 80)
     
@@ -424,11 +424,11 @@ def run_all_tests():
     
     # Summary
     print("\n" + "="*80)
-    print("📊 TEST SUMMARY")
+    print("TEST SUMMARY")
     print("="*80)
     
     for name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "PASS" if result else "FAIL"
         print(f"{status}: {name}")
     
     total_passed = sum(1 for r in results.values() if r)
