@@ -50,12 +50,12 @@ This project includes comprehensive documentation across multiple files:
 
 ### Overview
 
-**OrgGPT** is a production-ready Retrieval-Augmented Generation (RAG) system that enables intelligent querying of organizational documentation through natural language. The system indexes multiple data sources (Swagger APIs, Datadog catalogs, technical documents) into a vector database and provides context-aware responses using Large Language Models.
+**OrgGPT** is a production-ready Retrieval-Augmented Generation (RAG) system that enables intelligent querying of organizational documentation through natural language. The system indexes multiple data sources (Swagger APIs, Datadog catalogs, Datadog SLOs, technical documents) into a vector database and provides context-aware responses using Large Language Models.
 
 ### Business Value
 
 - **⚡ Instant Knowledge Access**: Query organizational knowledge in natural language
-- **🎯 Multi-Source Intelligence**: Unified interface for Swagger, Datadog, and documents
+- **🎯 Multi-Source Intelligence**: Unified interface for Swagger, Datadog (Catalog + SLO), and documents
 - **🔒 POC Mode**: Demo capabilities without API credentials
 - **📊 Real-Time Monitoring**: Visual dashboard for system health
 - **🐳 Production Ready**: Docker-based deployment with persistence
@@ -65,7 +65,7 @@ This project includes comprehensive documentation across multiple files:
 | Metric | Value | Description |
 |--------|-------|-------------|
 | **Response Time** | <2s | Average query response time |
-| **Data Sources** | 3 | Swagger, Datadog, Documents |
+| **Data Sources** | 4 | Swagger, Datadog Catalog, Datadog SLO, Documents |
 | **Total Documents** | 103+ | Indexed and searchable |
 | **Deployment** | Docker | Containerized for scalability |
 | **Uptime** | 99.9% | Target availability |
@@ -109,10 +109,10 @@ This project includes comprehensive documentation across multiple files:
           │     CHROMADB (Vector Database)      │
           │         🐳 Docker Container          │
           │                                      │
-          │  ┌──────────┐  ┌──────────┐         │
-          │  │ swagger  │  │ datadog  │         │
-          │  │ 101 docs │  │ 2 docs   │         │
-          │  └──────────┘  └──────────┘         │
+          │  ┌──────────┐  ┌─────────────────┐  │
+          │  │ swagger  │  │ datadog_catalog │  │
+          │  │ 101 docs │  │ datadog_slo     │  │
+          │  └──────────┘  └─────────────────┘  │
           │                                      │
           │  Persistent Storage: ./chroma_data  │
           └──────────────────────────────────────┘
@@ -249,7 +249,8 @@ This project includes comprehensive documentation across multiple files:
 | Source | Description | Documents | Status |
 |--------|-------------|-----------|--------|
 | **Swagger** | API documentation from JSON/YAML | 101 | ✅ Active |
-| **Datadog** | Service catalog entities | 2 (POC) | ✅ Active |
+| **Datadog Catalog** | Service catalog entities | 2 (POC) | ✅ Active |
+| **Datadog SLO** | Service Level Objectives & corrections | Variable | ✅ Active |
 | **Documents** | .docx technical documents | Variable | ✅ Active |
 
 ---
@@ -290,6 +291,20 @@ This project includes comprehensive documentation across multiple files:
 - **VS Code** - IDE
 - **Python venv** - Virtual environments
 - **pip** - Package management
+
+### Testing
+
+The project includes comprehensive test suites for each integration:
+
+```bash
+# Test Datadog Catalog integration
+python test_datadog_catalog.py
+
+# Test Datadog SLO integration
+python test_datadog_slo.py
+```
+
+Both test files use mocked data and don't require API credentials.
 
 ---
 
@@ -333,7 +348,8 @@ docker-compose up -d chromadb
 
 # 6. Build indexes
 export CHROMA_CLIENT_TYPE=http
-python index_builder.py datadog_poc
+python index_builder.py datadog_catalog_poc  # Datadog Catalog POC
+python index_builder.py datadog_slo_poc      # Datadog SLO POC
 python index_builder.py swagger
 
 # 7. Start application
@@ -602,11 +618,14 @@ python index_builder.py
 
 # Build specific source
 python index_builder.py swagger
-python index_builder.py datadog_poc
-python index_builder.py datadog_catalog  # Requires API keys
+python index_builder.py datadog_catalog_poc  # Catalog POC (no API keys)
+python index_builder.py datadog_slo_poc      # SLO POC (no API keys)
+python index_builder.py datadog_catalog      # Catalog (requires API keys)
+python index_builder.py datadog_slo          # SLO (requires API keys)
 
 # Custom JSON for POC
-python index_builder.py datadog_poc my_custom_data.json
+python index_builder.py datadog_catalog_poc my_custom_catalog.json
+python index_builder.py datadog_slo_poc my_custom_slo.json
 ```
 
 #### View Collections

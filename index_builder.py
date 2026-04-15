@@ -7,13 +7,16 @@ Supports:
   1. Swagger API documentation
   2. Project documents
   3. Datadog Catalog Entities (/api/v2/catalog/entity) ✨
-  4. Datadog POC mode (JSON file, no API keys) 🎯
+  4. Datadog SLOs (/api/v1/slo) ✨
+  5. Datadog POC mode (JSON files, no API keys) 🎯
 
 Usage:
     python index_builder.py                            # Build all indexes (default)
     python index_builder.py swagger                    # Build only Swagger
     python index_builder.py datadog_catalog            # Build Catalog Entities ✨
+    python index_builder.py datadog_slo                # Build SLOs ✨
     python index_builder.py datadog_poc                # Build POC from JSON (no API keys) 🎯
+    python index_builder.py datadog_slo_poc            # Build SLO POC from JSON 🎯
     python index_builder.py datadog_poc custom.json    # Build POC from custom JSON file
 """
 
@@ -231,6 +234,106 @@ class IndexBuilder:
         except Exception as e:
             logger.error(f"❌ Datadog POC index failed: {e}\n", exc_info=True)
             return False
+    
+    def build_datadog_slo_index(self) -> bool:
+        """
+        Build index from Datadog SLO API (/api/v1/slo).
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        logger.info("\n" + "="*80)
+        logger.info("📚 Building Datadog SLO Index ✨ (/api/v1/slo)")
+        logger.info("="*80 + "\n")
+
+        try:
+            # Step 1: Extract SLOs
+            logger.info("Extracting Datadog SLOs...")
+            connector = self._get_datadog_connector()
+            slos = connector.extract_slos()
+            
+            if not slos:
+                logger.warning("No SLOs found")
+                return False
+                
+            logger.info(f"✓ Extracted {len(slos)} SLOs")
+
+            # Step 2: Transform to documents
+            logger.info("Transforming SLOs using SLOTransformer...")
+            docs = connector.slo_transformer.transform_slos_batch(slos)
+            logger.info(f"✓ Transformed {len(docs)} SLOs to documents")
+
+            # Step 3-5: Chunk, embed, store
+            chunks = self._create_and_store_index(
+                documents=docs,
+                collection_name="datadog_slo",
+                id_prefix="datadog_slo"
+            )
+            
+            logger.info(f"✅ Datadog SLO index built successfully ({chunks} chunks)\n")
+            return True
+            
+        except Exception as e:
+            logger.error(f"⚠️  Datadog SLO index failed: {e}\n")
+            return False
+    
+    def build_datadog_slo_poc_index(self, json_file: str = "sample_get_slo_list.json") -> bool:
+        """
+        Build index from sample SLO JSON file.
+        
+        This method demonstrates SLO integration without requiring API keys.
+        Perfect for presentations and testing.
+        
+        Args:
+            json_file: Path to JSON file containing Datadog SLOs
+                      (default: sample_get_slo_list.json)
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        logger.info("\n" + "="*80)
+        logger.info("📚 Building Datadog SLO POC Index 🎯 (No API Keys Required)")
+        logger.info(f"📂 Using JSON file: {json_file}")
+        logger.info("="*80 + "\n")
+
+        try:
+            # Check if file exists
+            if not os.path.exists(json_file):
+                logger.error(f"❌ JSON file not found: {json_file}")
+                logger.info("ℹ️  Place your sample JSON file in the project root directory")
+                return False
+
+            # Step 1: Load SLOs from JSON
+            logger.info(f"Loading SLOs from JSON file: {json_file}")
+            connector = self._get_datadog_poc_connector()
+            slos = connector.extract_slos_from_json(json_file)
+            
+            if not slos:
+                logger.warning("No SLOs found in JSON file")
+                return False
+                
+            logger.info(f"✓ Loaded {len(slos)} SLOs from JSON")
+
+            # Step 2: Transform to documents
+            logger.info("Transforming SLOs using SLOTransformer...")
+            docs = connector.slo_transformer.transform_slos_batch(slos)
+            logger.info(f"✓ Transformed {len(docs)} SLOs to documents")
+
+            # Step 3-5: Chunk, embed, store in separate POC collection
+            chunks = self._create_and_store_index(
+                documents=docs,
+                collection_name="datadog_slo_poc",
+                id_prefix="datadog_slo_poc"
+            )
+            
+            logger.info(f"✅ Datadog SLO POC index built successfully ({chunks} chunks)")
+            logger.info(f"ℹ️  Collection: 'datadog_slo_poc' (separate from production)")
+            logger.info(f"ℹ️  Source: {json_file}\n")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Datadog SLO POC index failed: {e}\n", exc_info=True)
+            return False
 
     def build_all_indexes(self) -> bool:
         """
@@ -250,6 +353,9 @@ class IndexBuilder:
         
         # Build Datadog Catalog
         results['datadog_catalog'] = self.build_datadog_catalog_index()
+        
+        # Build Datadog SLOs
+        results['datadog_slo'] = self.build_datadog_slo_index()
 
         # Summary
         logger.info("="*80)
@@ -280,10 +386,16 @@ def main():
             success = builder.build_swagger_index()
         elif command == "datadog_catalog":
             success = builder.build_datadog_catalog_index()
+        elif command == "datadog_slo":
+            success = builder.build_datadog_slo_index()
         elif command == "datadog_poc":
             # Check if custom JSON file provided
             json_file = sys.argv[2] if len(sys.argv) > 2 else "sample_get_entities_list.json"
             success = builder.build_datadog_poc_index(json_file)
+        elif command == "datadog_slo_poc":
+            # Check if custom JSON file provided
+            json_file = sys.argv[2] if len(sys.argv) > 2 else "sample_get_slo_list.json"
+            success = builder.build_datadog_slo_poc_index(json_file)
         elif command == "all":
             success = builder.build_all_indexes()
         else:
@@ -291,7 +403,9 @@ def main():
             logger.info("\nAvailable commands:")
             logger.info("  python index_builder.py swagger                    # Build Swagger index")
             logger.info("  python index_builder.py datadog_catalog            # Build Catalog Entities ✨")
-            logger.info("  python index_builder.py datadog_poc                # Build POC (no API keys) 🎯")
+            logger.info("  python index_builder.py datadog_slo                # Build SLOs ✨")
+            logger.info("  python index_builder.py datadog_poc                # Build Catalog POC (no API keys) 🎯")
+            logger.info("  python index_builder.py datadog_slo_poc            # Build SLO POC (no API keys) 🎯")
             logger.info("  python index_builder.py datadog_poc custom.json    # Build POC from custom file")
             logger.info("  python index_builder.py all                        # Build all indexes (default)")
             logger.info("")

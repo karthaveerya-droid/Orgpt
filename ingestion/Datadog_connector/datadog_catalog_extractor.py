@@ -24,13 +24,6 @@ class CatalogEntityExtractor:
     """
     Extracts service and application catalog entities from Datadog.
     
-    This is more comprehensive than /api/v2/services because it includes:
-    - Relaciones complejas (incidents, oncall, schemas, relatedEntities)
-    - Metadata estructurada (owner, team, contacts, links)
-    - Integración nativa (OpsGenie, PagerDuty)
-    - Spec rico (lifecycle, tier, type, languages, dependencies)
-    - Code locations y eventos asociados
-    
     Example:
         extractor = CatalogEntityExtractor(client)
         services = extractor.extract_all_entities(kinds=["service"])

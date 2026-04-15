@@ -15,8 +15,9 @@ Architecture:
   - Transformers: Convert to text format
   - Connector: Orchestrates the flow
 
-Data Source:
+Data Sources:
   - /api/v2/catalog/entity ✨ (CatalogEntityExtractor + CatalogEntityTransformer)
+  - /api/v1/slo ✨ (SLOExtractor + SLOTransformer)
 """
 
 import os
@@ -27,7 +28,7 @@ import json
 
 from .datadog_client import DatadogAPIClient, DatadogClientConfig
 
-# ✨ IMPORTS
+# ✨ CATALOG ENTITY IMPORTS
 try:
     from .datadog_catalog_extractor import CatalogEntityExtractor
     from .datadog_catalog_transformers import CatalogEntityTransformer
@@ -37,6 +38,16 @@ except ImportError:
     logger_temp = logging.getLogger(__name__)
     logger_temp.warning("CatalogEntityExtractor or CatalogEntityTransformer not found. Catalog Entity extraction disabled.")
 
+# ✨ SLO IMPORTS
+try:
+    from .datadog_slo_extractor import SLOExtractor
+    from .datadog_slo_transformer import SLOTransformer
+    SLO_AVAILABLE = True
+except ImportError:
+    SLO_AVAILABLE = False
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.warning("SLOExtractor or SLOTransformer not found. SLO extraction disabled.")
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -44,15 +55,25 @@ logger = logging.getLogger(__name__)
 
 class DatadogConnector:
     """
-    Main connector for Datadog Catalog Entity API integration.
+    Main connector for Datadog API integration.
     
     Supports:
     - Catalog Entity API (/api/v2/catalog/entity) ✨
+    - SLO API (/api/v1/slo) ✨
+    
+    Follows Open/Closed Principle:
+      - Closed for modification (stable core)
+      - Open for extension (new extractors/transformers)
     
     Usage:
+        # Catalog Entities
         connector = DatadogConnector()
         entities = connector.extract_catalog_entities()
         docs = connector.catalog_transformer.transform_entities_batch(entities)
+        
+        # SLOs
+        slos = connector.extract_slos()
+        slo_docs = connector.slo_transformer.transform_slos_batch(slos)
     """
     
     def __init__(self, config: Optional[DatadogClientConfig] = None, poc_mode: bool = False):
@@ -86,6 +107,19 @@ class DatadogConnector:
             self.catalog_extractor = None
             self.catalog_transformer = None
             logger.warning("⚠️  Catalog Entity support disabled - modules not found")
+        
+        # ✨ Initialize SLO extractor and transformer
+        if SLO_AVAILABLE:
+            if not poc_mode:
+                self.slo_extractor = SLOExtractor(self.client)
+            else:
+                self.slo_extractor = None  # Not needed for POC
+            self.slo_transformer = SLOTransformer()
+            logger.info("✓ SLO transformer initialized")
+        else:
+            self.slo_extractor = None
+            self.slo_transformer = None
+            logger.warning("⚠️  SLO support disabled - modules not found")
         
         # Cache for extracted data
         self._cache: Dict[str, Any] = {}
@@ -142,6 +176,182 @@ class DatadogConnector:
             
         except Exception as e:
             logger.error(f"✗ Error extracting catalog entities: {e}")
+            raise
+    
+    # ✨ NEW METHODS FOR SLO
+    def extract_slos(
+        self,
+        query: Optional[str] = None,
+        tags_query: Optional[str] = None,
+        limit: int = 100,
+        max_pages: Optional[int] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Extract Service Level Objectives (SLOs) from /api/v1/slo endpoint.
+        
+        Args:
+            query: Filter by SLO name (e.g., "availability")
+            tags_query: Filter by tags (e.g., "env:prod,team:platform")
+            limit: Items per page (max 1000)
+            max_pages: Maximum pages to fetch. If None, fetches all.
+            
+        Returns:
+            List of SLO dictionaries
+            
+        Raises:
+            RuntimeError: If SLO support is not available
+            
+        Example:
+            slos = connector.extract_slos(tags_query="env:prod", max_pages=5)
+            docs = connector.slo_transformer.transform_slos_batch(slos)
+        """
+        if not SLO_AVAILABLE:
+            raise RuntimeError(
+                "SLO extraction not available. "
+                "Ensure datadog_slo_extractor.py and datadog_slo_transformer.py exist."
+            )
+        
+        if not self.slo_extractor:
+            raise RuntimeError("SLO extractor not initialized")
+        
+        try:
+            logger.info("🔄 Extracting SLOs...")
+            
+            if max_pages:
+                slos = []
+                offset = 0
+                for page in range(max_pages):
+                    page_slos = self.slo_extractor.extract_all_slos(
+                        offset=offset,
+                        limit=limit,
+                        query=query,
+                        tags_query=tags_query,
+                    )
+                    
+                    if not page_slos:
+                        break
+                    
+                    slos.extend(page_slos)
+                    
+                    if len(page_slos) < limit:
+                        break
+                    
+                    offset += limit
+            else:
+                slos = self.slo_extractor.extract_all_paginated(
+                    query=query,
+                    tags_query=tags_query,
+                )
+            
+            # Cache result
+            self._cache["slos"] = slos
+            self._last_sync = datetime.now()
+            
+            logger.info(f"✓ Successfully extracted {len(slos)} SLOs")
+            return slos
+            
+        except Exception as e:
+            logger.error(f"✗ Error extracting SLOs: {e}")
+            raise
+    
+    def extract_slo_corrections(
+        self,
+        slo_id: Optional[str] = None,
+        limit: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """
+        Extract SLO corrections (maintenance windows).
+        
+        Args:
+            slo_id: Optional SLO ID to filter corrections
+            limit: Items per page (max 1000)
+            
+        Returns:
+            List of correction dictionaries
+            
+        Example:
+            corrections = connector.extract_slo_corrections(slo_id="abc123")
+            docs = connector.slo_transformer.transform_corrections_batch(corrections)
+        """
+        if not SLO_AVAILABLE:
+            raise RuntimeError("SLO extraction not available")
+        
+        if not self.slo_extractor:
+            raise RuntimeError("SLO extractor not initialized")
+        
+        try:
+            logger.info(f"🔄 Extracting SLO corrections (slo_id={slo_id or 'all'})...")
+            
+            corrections = self.slo_extractor.extract_slo_corrections(
+                slo_id=slo_id,
+                limit=limit,
+            )
+            
+            # Cache result
+            cache_key = f"corrections_{slo_id or 'all'}"
+            self._cache[cache_key] = corrections
+            
+            logger.info(f"✓ Successfully extracted {len(corrections)} corrections")
+            return corrections
+            
+        except Exception as e:
+            logger.error(f"✗ Error extracting SLO corrections: {e}")
+            raise
+    
+    def extract_slos_from_json(self, json_file_path: str) -> List[Dict[str, Any]]:
+        """
+        Extract SLOs from a local JSON file (POC mode).
+        
+        This method allows loading SLOs from a sample JSON file without requiring
+        API credentials. Useful for demonstrations and testing.
+        
+        Args:
+            json_file_path: Path to JSON file containing Datadog SLOs
+                           Expected format: {"data": [slo1, slo2, ...]}
+        
+        Returns:
+            List of SLO dictionaries ready for transformation
+        
+        Example:
+            >>> connector = DatadogConnector(poc_mode=True)
+            >>> slos = connector.extract_slos_from_json("sample_get_slo_list.json")
+            >>> docs = connector.slo_transformer.transform_slos_batch(slos)
+        """
+        if not SLO_AVAILABLE:
+            raise RuntimeError(
+                "SLO transformation not available. "
+                "Ensure datadog_slo_transformer.py exists."
+            )
+        
+        logger.info(f"📂 Loading Datadog SLOs from JSON file: {json_file_path}")
+        
+        try:
+            with open(json_file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            # Extract SLOs from the 'data' field (Datadog API format)
+            slos = data.get('data', [])
+            
+            if not slos:
+                logger.warning(f"No SLOs found in {json_file_path}")
+                return []
+            
+            logger.info(f"✅ Loaded {len(slos)} SLOs from JSON file")
+            
+            # Cache result
+            self._cache["slos_from_json"] = slos
+            self._last_sync = datetime.now()
+            
+            return slos
+            
+        except FileNotFoundError:
+            logger.error(f"❌ JSON file not found: {json_file_path}")
+            raise
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ Invalid JSON format in {json_file_path}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"❌ Error loading SLOs from JSON: {e}", exc_info=True)
             raise
     
     def get_cache(self) -> Dict[str, Any]:

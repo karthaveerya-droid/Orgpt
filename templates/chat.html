@@ -90,8 +90,11 @@
           <label style="margin-right: 0.5rem;">
             <input type="radio" name="mode" value="swagger" checked /> 📝 Swagger
           </label>
+          <label style="margin-right: 0.5rem;">
+            <input type="radio" name="mode" value="datadog_poc" /> 📊 Datadog Catalog
+          </label>
           <label>
-            <input type="radio" name="mode" value="datadog_poc" /> 📊 Datadog
+            <input type="radio" name="mode" value="datadog_slo_poc" /> 🎯 Datadog SLO
           </label>
         </div>
       </div>
@@ -118,12 +121,19 @@
         const activeSource = document.getElementById("active-source");
         
         if (e.target.value === "datadog_poc") {
-          // Datadog mode
+          // Datadog Catalog mode (POC)
           statusBar.style.borderLeft = "4px solid #ff9900";
           statusBar.style.background = "#fff8e6";
           activeSource.style.color = "#ff9900";
-          activeSource.innerHTML = "📊 Datadog";
+          activeSource.innerHTML = "📊 Datadog Catalog";
           queryInput.placeholder = "Ask about Datadog services...";
+        } else if (e.target.value === "datadog_slo_poc") {
+          // Datadog SLO mode (POC)
+          statusBar.style.borderLeft = "4px solid #9c27b0";
+          statusBar.style.background = "#f3e5f5";
+          activeSource.style.color = "#9c27b0";
+          activeSource.innerHTML = "🎯 Datadog SLO";
+          queryInput.placeholder = "Ask about SLOs and availability targets...";
         } else {
           // Swagger mode (default)
           statusBar.style.borderLeft = "4px solid #00aa00";
@@ -168,7 +178,8 @@
           // Add source indicator based on collection
           const sourceIcons = {
             "swagger": "📝 Swagger",
-            "datadog_poc": "📊 Datadog"
+            "datadog_poc": "📊 Datadog Catalog",
+            "datadog_slo_poc": "🎯 Datadog SLO"
           };
           const source = sourceIcons[collection] || "🔍 OrgGPT";
           const note = data.note ? `<div style="color: #ff9900; font-size: 0.9em; margin-top: 0.5rem;">ℹ️ ${data.note}</div>` : "";

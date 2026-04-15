@@ -46,10 +46,12 @@ async def query(query: str = Form(...), collection: str = Form("swagger")):
         
         # Add metadata based on collection
         response_data = {"answer": answer, "source": collection}
-        if collection == "datadog_poc":
-            response_data["note"] = "Data from sample JSON (POC mode - no API keys)"
-        elif collection == "datadog_catalog":
-            response_data["note"] = "Data from Datadog API (live data)"
+        if collection in ["datadog_poc", "datadog_catalog"]:
+            response_data["note"] = "Data from Datadog Catalog (POC mode - sample JSON)"
+        elif collection == "datadog_catalog_live":
+            response_data["note"] = "Data from Datadog Catalog API (live data)"
+        elif collection in ["datadog_slo", "datadog_slo_poc"]:
+            response_data["note"] = "Data from Datadog SLO"
         
         return JSONResponse(response_data)
     except Exception as e:
@@ -66,10 +68,12 @@ async def chat(query: str = Form(...), collection: str = Form("swagger")):
         
         # Add metadata based on collection
         response_data = {"answer": answer, "source": collection}
-        if collection == "datadog_poc":
-            response_data["note"] = "Data from sample JSON (POC mode - no API keys)"
-        elif collection == "datadog_catalog":
-            response_data["note"] = "Data from Datadog API (live data)"
+        if collection in ["datadog_poc", "datadog_catalog"]:
+            response_data["note"] = "Data from Datadog Catalog (POC mode - sample JSON)"
+        elif collection == "datadog_catalog_live":
+            response_data["note"] = "Data from Datadog Catalog API (live data)"
+        elif collection in ["datadog_slo", "datadog_slo_poc"]:
+            response_data["note"] = "Data from Datadog SLO"
         
         return JSONResponse(response_data)
     except Exception as e:

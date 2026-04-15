@@ -1,6 +1,20 @@
 # 🚀 OrgGPT - Quick Reference Card
 
-## ⚡ 30-Second Setup
+## ⚡ 10-Second Setup (WITHOUT Docker)
+
+```bash
+# 1. Activate environment
+source .venv/bin/activate
+
+# 2. Start application (uses local ChromaDB automatically)
+uvicorn app_api:app --reload --port 8001
+```
+
+**Open:** http://localhost:8001/
+
+---
+
+## 🐳 30-Second Setup (WITH Docker)
 
 ```bash
 # 1. Activate environment
@@ -24,22 +38,35 @@ uvicorn app_api:app --reload --port 8001
 
 ### Start Services
 
+**Local Mode (No Docker):**
 ```bash
-# Start ChromaDB
-docker-compose up -d chromadb
-
-# Start application
+# Start application (ChromaDB runs embedded)
 uvicorn app_api:app --reload --port 8001
 
 # Start in background
 nohup uvicorn app_api:app --port 8001 > server.log 2>&1 &
 ```
 
+**Docker Mode:**
+```bash
+# Start ChromaDB container
+docker-compose up -d chromadb
+
+# Configure Docker mode
+export CHROMA_CLIENT_TYPE=http
+
+# Start application
+uvicorn app_api:app --reload --port 8001
+```
+
 ### Build Indexes
 
 ```bash
-# POC mode (no API keys)
+# Datadog Catalog POC (no API keys)
 python index_builder.py datadog_poc
+
+# Datadog SLO POC (no API keys)
+python index_builder.py datadog_slo_poc
 
 # Swagger documentation
 python index_builder.py swagger
@@ -94,10 +121,12 @@ docker-compose down
 
 | Problem | Solution |
 |---------|----------|
-| Connection refused | `docker-compose up -d chromadb` |
-| No results | `python index_builder.py datadog_poc` |
+| "Could not connect to Chroma server" | Using Docker? Run `docker-compose up -d chromadb`. Using local? Unset `CHROMA_CLIENT_TYPE` or set to `persistent` |
+| No results | `python index_builder.py datadog_catalog_poc` or `python index_builder.py datadog_slo_poc` |
 | 500 error | Check `tail -f server.log` |
-| Slow queries | Restart: `docker-compose restart chromadb` |
+| Slow queries (Docker) | Restart: `docker-compose restart chromadb` |
+| Slow queries (Local) | Delete `chroma_db/` and rebuild with POC command |
+| Datadog API errors | Check API/APP keys in `.env` or use POC mode (`datadog_catalog_poc` / `datadog_slo_poc`) |
 
 ---
 
@@ -119,9 +148,14 @@ echo "✅ All systems operational"
 - "How do I authenticate?"
 - "Show me all POST endpoints"
 
-**Datadog:**
+**Datadog Catalog:**
 - "What services are in the catalog?"
 - "List all deployed services"
+
+**Datadog SLO:**
+- "What SLOs do we have?"
+- "Show me scheduled maintenance windows"
+- "What are the availability targets?"
 
 ---
 
@@ -148,8 +182,36 @@ Orgpt/
 ✅ Multi-source indexing (Swagger, Datadog, Docs)  
 ✅ POC mode (no API keys needed)  
 ✅ Real-time monitoring dashboard  
-✅ Docker-based ChromaDB  
+✅ **Works with or without Docker** (local ChromaDB embedded)  
 ✅ GPT-4 powered responses  
 ✅ Persistent data storage  
+
+---
+
+## 🔧 Configuration Modes
+
+### Local Mode (Default - No Docker Required)
+```bash
+# In .env file:
+CHROMA_CLIENT_TYPE=persistent
+
+# Or just don't set it - defaults to persistent
+```
+- ✅ Faster startup
+- ✅ No Docker installation needed
+- ✅ Data stored in `./chroma_db/`
+- ✅ Perfect for development
+
+### Docker Mode (Production)
+```bash
+# In .env file:
+CHROMA_CLIENT_TYPE=http
+CHROMA_HOST=localhost
+CHROMA_PORT=8000
+```
+- ✅ Better for production
+- ✅ Easier to scale
+- ✅ Data stored in `./chroma_data/`
+- ✅ Isolated from application
 
 ---
