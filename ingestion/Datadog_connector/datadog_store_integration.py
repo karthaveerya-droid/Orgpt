@@ -3,6 +3,24 @@ datadog_store_integration.py
 ============================
 Bridge between Datadog connector and OrgGPT's vector store.
 
+⚠️ **NOTE: This file is primarily for TESTING and DEMONSTRATION purposes.**
+
+For PRODUCTION ingestion, use `index_builder.py` instead:
+  - python index_builder.py datadog_poc       # POC mode (no API keys)
+  - python index_builder.py datadog_catalog   # Production mode (with API keys)
+  - python index_builder.py datadog_slo       # SLO production mode
+
+This file is used by:
+  ✅ test_datadog_catalog.py  - Catalog integration demos
+  ✅ test_datadog_slo.py      - SLO integration demos
+  ✅ Quick prototyping and experimentation
+
+Use cases:
+  1. Testing Datadog integration without full pipeline
+  2. Demos and presentations (executable test scripts)
+  3. Quick prototyping of new ingestion methods
+  4. Exploring API responses interactively
+
 Responsible for:
   1. Orchestrating document ingestion (Catalog Entities, SLOs)
   2. Managing cache and TTL

@@ -1,5 +1,31 @@
 # 🚀 OrgGPT - Quick Reference Card
 
+## ⚡️ First-Time Setup
+
+### 1. Configure Environment
+
+```bash
+# Copy the environment template
+cp .env.template .env
+
+# Edit .env and add your API keys
+nano .env  # or use your preferred editor
+```
+
+**Required values in `.env`:**
+```bash
+OPENAI_API_KEY=your_actual_api_key_here
+LLM_MODEL=llama-3.3-70b-versatile  # or gpt-4o, gpt-4o-mini, etc.
+```
+
+**Optional (for live Datadog data):**
+```bash
+DD_API_KEY=your_datadog_api_key
+DD_APP_KEY=your_datadog_app_key
+```
+
+---
+
 ## ⚡ 10-Second Setup (WITHOUT Docker)
 
 ```bash
@@ -213,5 +239,114 @@ CHROMA_PORT=8000
 - ✅ Easier to scale
 - ✅ Data stored in `./chroma_data/`
 - ✅ Isolated from application
+
+---
+
+## 🔧 Environment Configuration
+
+### Available LLM Models
+
+**Groq Models (Fast, Free Tier Available)**
+- `llama-3.3-70b-versatile` - Latest Llama model
+- `llama-3.1-70b-versatile` - Stable Llama model
+- `mixtral-8x7b-32768` - Large context window
+
+**OpenAI Models (Paid)**
+- `gpt-4o` - Latest GPT-4 Omni
+- `gpt-4o-mini` - Cost-effective GPT-4
+- `gpt-4-turbo` - High performance
+- `gpt-3.5-turbo` - Budget option
+
+### Switching Models
+
+Just change the `LLM_MODEL` value in your `.env` file and restart:
+
+```bash
+# Switch to GPT-4 Omni
+LLM_MODEL=gpt-4o
+
+# Switch to Llama 3.3
+LLM_MODEL=llama-3.3-70b-versatile
+
+# Switch to budget option
+LLM_MODEL=gpt-4o-mini
+```
+
+### Environment Variables Reference
+
+**ChromaDB:**
+- `CHROMA_CLIENT_TYPE`: `persistent` (local) or `http` (Docker)
+- `CHROMA_PATH`: Path for local DB (default: `./chroma_db`)
+- `CHROMA_HOST`: Host for HTTP mode (default: `localhost`)
+- `CHROMA_PORT`: Port for HTTP mode (default: `8000`)
+
+**LLM (Required):**
+- `OPENAI_API_KEY`: Your API key for Groq/OpenAI
+- `LLM_MODEL`: Model name (no default - must be set)
+
+**Datadog (Optional):**
+- `DD_API_KEY`: Datadog API key
+- `DD_APP_KEY`: Datadog application key
+- `DD_SITE`: Datadog site (default: `datadoghq.com`)
+- `DATADOG_POC_ENABLED`: Enable POC mode (default: `true`)
+
+**Application:**
+- `HOST`: Server host (default: `0.0.0.0`)
+- `PORT`: Server port (default: `8001`)
+- `ENVIRONMENT`: `development`, `staging`, or `production`
+- `DEBUG`: Enable debug mode (default: `true`)
+
+### Example Configurations
+
+**Local Development (No Docker):**
+```bash
+CHROMA_CLIENT_TYPE=persistent
+CHROMA_PATH=./chroma_db
+OPENAI_API_KEY=sk-proj-...
+LLM_MODEL=llama-3.3-70b-versatile
+```
+
+**Docker Deployment:**
+```bash
+CHROMA_CLIENT_TYPE=http
+CHROMA_HOST=localhost
+CHROMA_PORT=8000
+OPENAI_API_KEY=sk-proj-...
+LLM_MODEL=gpt-4o-mini
+```
+
+**With Live Datadog Integration:**
+```bash
+OPENAI_API_KEY=sk-proj-...
+LLM_MODEL=llama-3.3-70b-versatile
+DD_API_KEY=your_dd_api_key
+DD_APP_KEY=your_dd_app_key
+DATADOG_POC_ENABLED=false
+```
+
+**POC/Demo Mode (No Datadog API Keys):**
+```bash
+OPENAI_API_KEY=sk-proj-...
+LLM_MODEL=llama-3.3-70b-versatile
+DATADOG_POC_ENABLED=true
+# No DD_API_KEY or DD_APP_KEY needed!
+```
+
+### Common Issues
+
+**Error: "LLM_MODEL must be set in environment variables"**
+- **Solution**: Add `LLM_MODEL=your-model-name` to your `.env` file
+
+**Error: "API key not found"**
+- **Solution**: Add `OPENAI_API_KEY=your-api-key` to your `.env` file
+
+**ChromaDB connection issues**
+- **Solution**: Check `CHROMA_CLIENT_TYPE` matches your setup:
+  - Use `persistent` for local development
+  - Use `http` when running with Docker
+
+### Security Note
+
+⚠️ **Never commit your `.env` file to git!** It contains sensitive API keys and is already in `.gitignore`.
 
 ---

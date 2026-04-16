@@ -10,9 +10,22 @@ load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 class LLMHandler:
-    def __init__(self, api_key=None):
-        self.client = Groq(api_key=openai_api_key)
-        self.model = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
+    def __init__(self, api_key=None, model=None):
+        """
+        Initialize LLM Handler.
+        
+        Args:
+            api_key: Optional API key override (uses OPENAI_API_KEY env var by default)
+            model: Optional model override (uses LLM_MODEL env var by default)
+        """
+        self.client = Groq(api_key=api_key or openai_api_key)
+        self.model = model or os.getenv("LLM_MODEL")
+        
+        if not self.model:
+            raise ValueError(
+                "LLM_MODEL must be set in environment variables. "
+                "Add LLM_MODEL=your-model-name to your .env file"
+            )
 
     def ask(self, query, context):
         prompt = f"Context:\n{context}\n\nQuestion:\n{query}\nAnswer:"
