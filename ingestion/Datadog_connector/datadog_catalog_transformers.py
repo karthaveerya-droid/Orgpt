@@ -59,6 +59,12 @@ class CatalogEntityTransformer:
             if kind:
                 sections.append(f"**Type**: {kind}")
             
+            # Add key technical terms at the top for better retrieval
+            entity_id = entity.get("id", "unknown")
+            entity_type = entity.get("type", "unknown")
+            sections.append(f"**Entity ID**: {entity_id} | **Kind**: {kind} | **Name**: {name}")
+            sections.append(f"_Technical keys: entity_id, attributes, relationships, relatedEntities, incidents, oncall_")
+            
             # Basic info
             sections.append("")
             sections.append("## Service Details")
@@ -94,6 +100,24 @@ class CatalogEntityTransformer:
                 sections.extend(
                     self._format_relationships(name, relationships)
                 )
+            
+            # Add technical fields section for better RAG retrieval
+            sections.append("")
+            sections.append("## Technical Fields (Raw JSON Keys)")
+            sections.append(f"**entity_id**: {entity.get('id', 'unknown')}")
+            sections.append(f"**type**: {entity.get('type', 'unknown')}")
+            if attributes:
+                key_attrs = ["name", "kind", "apiVersion", "namespace", "owner", "displayName"]
+                for key in key_attrs:
+                    if key in attributes:
+                        sections.append(f"**attributes.{key}**: {attributes[key]}")
+            if relationships:
+                rel_keys = ["incidents", "oncall", "relatedEntities", "schema"]
+                for key in rel_keys:
+                    if key in relationships:
+                        data = relationships[key].get("data", [])
+                        count = len(data) if isinstance(data, list) else (1 if data else 0)
+                        sections.append(f"**relationships.{key}**: {count} items")
             
             return "\n".join(sections)
             

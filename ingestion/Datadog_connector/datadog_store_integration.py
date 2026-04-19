@@ -11,9 +11,9 @@ For PRODUCTION ingestion, use `index_builder.py` instead:
   - python index_builder.py datadog_slo       # SLO production mode
 
 This file is used by:
-  ✅ test_datadog_catalog.py  - Catalog integration demos
-  ✅ test_datadog_slo.py      - SLO integration demos
-  ✅ Quick prototyping and experimentation
+  test_datadog_catalog.py  - Catalog integration demos
+  test_datadog_slo.py      - SLO integration demos
+  Quick prototyping and experimentation
 
 Use cases:
   1. Testing Datadog integration without full pipeline

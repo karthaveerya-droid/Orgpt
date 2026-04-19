@@ -1,6 +1,10 @@
-# 🚀 OrgGPT - Quick Reference Card
+# 🚀 OrgGPT - Quick Start Guide
 
-## ⚡️ First-Time Setup
+> **Unified Knowledge Base**: All data sources (Swagger + Datadog Catalog + Datadog SLOs) in one place!
+
+---
+
+## ⚡️ First-Time Setup (5 Minutes)
 
 ### 1. Configure Environment
 
@@ -24,23 +28,61 @@ DD_API_KEY=your_datadog_api_key
 DD_APP_KEY=your_datadog_app_key
 ```
 
+### 2. Build Unified Index
+
+```bash
+# Activate environment
+source .venv/bin/activate
+
+# Build unified knowledge base (POC mode - no API keys needed)
+python3 index_builder.py
+```
+
+**Expected output:**
+```
+✓ IndexBuilder initialized (collection: 'unified_knowledge')
+✓ Registered connector: swagger
+✓ Registered connector: datadog_catalog
+✓ Registered connector: datadog_slo
+...
+✅ Unified index 'unified_knowledge' built successfully
+```
+
+### 3. Start Application
+
+```bash
+# Start server
+uvicorn app_api:app --reload --port 8001
+```
+
+### 4. Open Browser
+
+**Go to:** http://localhost:8001/
+
+You're ready to ask questions! 🎉
+
 ---
 
-## ⚡ 10-Second Setup (WITHOUT Docker)
+## ⚡ Quick Start (Without Docker)
 
 ```bash
 # 1. Activate environment
 source .venv/bin/activate
 
-# 2. Start application (uses local ChromaDB automatically)
+# 2. Build index (first time only)
+python3 index_builder.py
+
+# 3. Start application
 uvicorn app_api:app --reload --port 8001
 ```
 
 **Open:** http://localhost:8001/
 
+✅ **No Docker needed!** Uses local ChromaDB automatically.
+
 ---
 
-## 🐳 30-Second Setup (WITH Docker)
+## 🐳 With Docker (Production)
 
 ```bash
 # 1. Activate environment
@@ -49,10 +91,13 @@ source .venv/bin/activate
 # 2. Start ChromaDB
 docker-compose up -d chromadb
 
-# 3. Configure environment
+# 3. Configure Docker mode
 export CHROMA_CLIENT_TYPE=http
 
-# 4. Start application
+# 4. Build index (first time only)
+python3 index_builder.py
+
+# 5. Start application
 uvicorn app_api:app --reload --port 8001
 ```
 
@@ -62,71 +107,81 @@ uvicorn app_api:app --reload --port 8001
 
 ## 📋 Essential Commands
 
-### Start Services
+### Build Unified Index
 
-**Local Mode (No Docker):**
 ```bash
-# Start application (ChromaDB runs embedded)
-uvicorn app_api:app --reload --port 8001
+# Build unified knowledge base (default - POC mode, no API keys needed)
+python3 index_builder.py
 
-# Start in background
-nohup uvicorn app_api:app --port 8001 > server.log 2>&1 &
+# Build with API mode (requires Datadog API keys)
+python3 index_builder.py unified
+
+# Build with POC mode (explicit)
+python3 index_builder.py unified --poc
 ```
 
-**Docker Mode:**
+**What gets indexed:**
+- ✅ Swagger API documentation
+- ✅ Datadog Catalog entities
+- ✅ Datadog SLO data
+- ✅ All in ONE collection: `unified_knowledge`
+
+### Start Application
+
+**Development Mode:**
 ```bash
-# Start ChromaDB container
+# Start with auto-reload
+uvicorn app_api:app --reload --port 8001
+```
+
+**Production Mode:**
+```bash
+# Start in background
+nohup uvicorn app_api:app --host 0.0.0.0 --port 8001 > server.log 2>&1 &
+```
+
+**With Docker:**
+```bash
+# 1. Start ChromaDB
 docker-compose up -d chromadb
 
-# Configure Docker mode
+# 2. Set Docker mode
 export CHROMA_CLIENT_TYPE=http
 
-# Start application
+# 3. Start app
 uvicorn app_api:app --reload --port 8001
 ```
 
-### Build Indexes
+### Monitor & Verify
 
 ```bash
-# Datadog Catalog POC (no API keys)
-python index_builder.py datadog_poc
-
-# Datadog SLO POC (no API keys)
-python index_builder.py datadog_slo_poc
-
-# Swagger documentation
-python index_builder.py swagger
-
-# All sources
-python index_builder.py
-```
-
-### Monitor System
-
-```bash
-# Web monitoring
+# Open monitoring dashboard
 open http://localhost:8001/monitor
 
-# CLI monitoring
-python monitor_chromadb.py
+# Check health
+curl http://localhost:8001/health
 
-# Docker status
-docker-compose ps
+# Verify collection
+python3 -c "
+from vector_store.store import VectorStore
+vs = VectorStore('unified_knowledge')
+print(f'✅ Collection has {vs.collection.count()} documents')
+"
 
-# View logs
+# View Docker logs (if using Docker)
 docker-compose logs -f chromadb
 ```
 
 ### Stop Services
 
 ```bash
-# Stop application
+# Stop application (Ctrl+C in terminal, or)
 pkill -f "uvicorn app_api"
 
-# Stop ChromaDB
+# Stop ChromaDB (if using Docker)
 docker-compose stop chromadb
 
-# Stop everything
+# Stop everything (Docker)
 docker-compose down
 ```
 
@@ -136,10 +191,10 @@ docker-compose down
 
 | URL | Description |
 |-----|-------------|
-| http://localhost:8001/ | Main interface |
-| http://localhost:8001/monitor | System monitor |
-| http://localhost:8001/health | Health check |
-| http://localhost:8000 | ChromaDB server |
+| http://localhost:8001/ | **Main Chat Interface** - Ask questions here! |
+| http://localhost:8001/monitor | System Monitor - View DB status |
+| http://localhost:8001/health | Health Check API |
+| http://localhost:8000 | ChromaDB Server (if using Docker) |
 
 ---
 
@@ -147,12 +202,14 @@ docker-compose down
 
 | Problem | Solution |
 |---------|----------|
-| "Could not connect to Chroma server" | Using Docker? Run `docker-compose up -d chromadb`. Using local? Unset `CHROMA_CLIENT_TYPE` or set to `persistent` |
-| No results | `python index_builder.py datadog_catalog_poc` or `python index_builder.py datadog_slo_poc` |
-| 500 error | Check `tail -f server.log` |
-| Slow queries (Docker) | Restart: `docker-compose restart chromadb` |
-| Slow queries (Local) | Delete `chroma_db/` and rebuild with POC command |
-| Datadog API errors | Check API/APP keys in `.env` or use POC mode (`datadog_catalog_poc` / `datadog_slo_poc`) |
+| **"Could not connect to Chroma server"** | Using Docker? Run `docker-compose up -d chromadb`. Using local? Unset `CHROMA_CLIENT_TYPE` |
+| **No results / empty collection** | Run `python3 index_builder.py` to build the unified index |
+| **"Collection not found"** | Build index first: `python3 index_builder.py` |
+| **500 error** | Check logs: `tail -f server.log` or check terminal output |
+| **Slow queries (Docker)** | Restart: `docker-compose restart chromadb` |
+| **Slow queries (Local)** | Delete `chroma_db/` folder and rebuild: `python3 index_builder.py` |
+| **Datadog API errors** | Check API/APP keys in `.env` or use POC mode (default) |
+| **"LLM_MODEL must be set"** | Add `LLM_MODEL=llama-3.3-70b-versatile` to `.env` file |
 
 ---
 
@@ -169,19 +226,29 @@ echo "✅ All systems operational"
 
 ## 💡 Example Queries
 
-**Swagger:**
-- "What endpoints are available?"
-- "How do I authenticate?"
-- "Show me all POST endpoints"
+**Try asking these questions in the web interface:**
 
-**Datadog Catalog:**
+**About APIs:**
+- "What endpoints are available?"
+- "How do I authenticate to the API?"
+- "Show me all POST endpoints"
+- "What's the rate limiting policy?"
+
+**About Services:**
 - "What services are in the catalog?"
 - "List all deployed services"
+- "What microservices do we have?"
 
-**Datadog SLO:**
+**About SLOs:**
 - "What SLOs do we have?"
 - "Show me scheduled maintenance windows"
 - "What are the availability targets?"
+- "What's our uptime SLO?"
+
+**General:**
+- "What's in this knowledge base?"
+- "Tell me about the architecture"
+- "What documentation is available?"
 
 ---
 
@@ -205,40 +272,49 @@ Orgpt/
 
 ## 🎯 Key Features
 
-✅ Multi-source indexing (Swagger, Datadog, Docs)  
-✅ POC mode (no API keys needed)  
-✅ Real-time monitoring dashboard  
-✅ **Works with or without Docker** (local ChromaDB embedded)  
-✅ GPT-4 powered responses  
-✅ Persistent data storage  
+✅ **Unified Knowledge Base** - One collection for all data sources  
+✅ **Multi-source** - Swagger + Datadog Catalog + Datadog SLOs  
+✅ **POC mode** - Demo without API keys  
+✅ **No Docker required** - Works with local ChromaDB  
+✅ **LLM powered** - GPT-4 or Llama models  
+✅ **Real-time monitoring** - Web dashboard included  
+✅ **Persistent storage** - Data saved locally or in Docker  
+✅ **Simple API** - One endpoint for all queries  
 
 ---
 
 ## 🔧 Configuration Modes
 
-### Local Mode (Default - No Docker Required)
+### Local Mode (Default - Recommended for Development)
 ```bash
-# In .env file:
+# In .env file (or just don't set these):
 CHROMA_CLIENT_TYPE=persistent
-
-# Or just don't set it - defaults to persistent
+CHROMA_PATH=./chroma_db
 ```
+
+**Benefits:**
 - ✅ Faster startup
-- ✅ No Docker installation needed
+- ✅ No Docker required
 - ✅ Data stored in `./chroma_db/`
 - ✅ Perfect for development
 
-### Docker Mode (Production)
+### Docker Mode (Recommended for Production)
 ```bash
-# In .env file:
+# 1. Start ChromaDB container
+docker-compose up -d chromadb
+
+# 2. Set in .env file:
 CHROMA_CLIENT_TYPE=http
 CHROMA_HOST=localhost
 CHROMA_PORT=8000
 ```
+
+**Benefits:**
 - ✅ Better for production
 - ✅ Easier to scale
 - ✅ Data stored in `./chroma_data/`
 - ✅ Isolated from application
+- ✅ Can be shared across multiple apps
 
 ---
 
@@ -348,5 +424,89 @@ DATADOG_POC_ENABLED=true
 ### Security Note
 
 ⚠️ **Never commit your `.env` file to git!** It contains sensitive API keys and is already in `.gitignore`.
+
+---
+
+## 🚀 Complete Workflow
+
+### First Time Setup:
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Configure environment
+cp .env.template .env
+nano .env  # Add your OPENAI_API_KEY and LLM_MODEL
+
+# 3. Activate virtual environment
+source .venv/bin/activate
+
+# 4. Build unified index
+python3 index_builder.py
+
+# 5. Start application
+uvicorn app_api:app --reload --port 8001
+
+# 6. Open browser
+open http://localhost:8001
+```
+
+### Daily Use:
+```bash
+# 1. Activate environment
+source .venv/bin/activate
+
+# 2. Start app (if index already built)
+uvicorn app_api:app --reload --port 8001
+
+# 3. Open browser
+open http://localhost:8001
+```
+
+### Rebuild Index (when data changes):
+```bash
+# Stop the app (Ctrl+C)
+
+# Rebuild index
+python3 index_builder.py
+
+# Restart app
+uvicorn app_api:app --reload --port 8001
+```
+
+---
+
+## 📊 What's in the Unified Collection?
+
+When you run `python3 index_builder.py`, it creates a **single collection** called `unified_knowledge` containing:
+
+| Data Source | Content | Document Count |
+|-------------|---------|----------------|
+| **Swagger** | API endpoints, parameters, responses | ~100+ |
+| **Datadog Catalog** | Service entities, metadata | ~2 (POC) |
+| **Datadog SLO** | SLO definitions, targets, corrections | Variable |
+
+**Total:** All sources searchable from one interface! 🎯
+
+---
+
+## 🆘 Need Help?
+
+**Common Commands:**
+```bash
+# Check if index exists
+python3 -c "from vector_store.store import VectorStore; vs = VectorStore('unified_knowledge'); print(vs.collection.count())"
+
+# View available commands
+python3 index_builder.py --help
+
+# Check health
+curl http://localhost:8001/health
+
+# View logs
+tail -f server.log
+```
+
+**Still having issues?** Check the [README.md](README.md) for detailed troubleshooting.
 
 ---

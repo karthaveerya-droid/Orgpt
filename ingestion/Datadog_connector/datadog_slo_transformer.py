@@ -278,6 +278,8 @@ class SLOTransformer:
             sections.append("")
             sections.append(f"**Correction ID**: {corr_id}")
             sections.append(f"**SLO ID**: {slo_id}")
+            sections.append(f"**Type**: {corr_type}")
+            sections.append(f"_Technical keys: slo_id, correction_id, attributes, category, description_")
             sections.append(f"**Category**: {category}")
             
             # Description
@@ -331,6 +333,19 @@ class SLOTransformer:
                 if modifier_email:
                     modifier_str += f" ({modifier_email})"
                 sections.append(f"**Last Modified By**: {modifier_str}")
+            
+            # Add technical fields section for better RAG retrieval
+            sections.append("")
+            sections.append("## Technical Fields (Raw JSON Keys)")
+            sections.append(f"**slo_id**: {slo_id}")
+            sections.append(f"**correction_id**: {corr_id}")
+            sections.append(f"**category**: {category}")
+            sections.append(f"**type**: {corr_type}")
+            if attributes:
+                key_attrs = ["duration", "timezone", "rrule", "start", "end"]
+                for key in key_attrs:
+                    if key in attributes:
+                        sections.append(f"**attributes.{key}**: {attributes[key]}")
             
             return "\n".join(sections)
         

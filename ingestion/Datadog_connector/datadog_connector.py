@@ -372,9 +372,9 @@ class DatadogConnector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def extract_catalog_entities_from_json(self, json_file_path: str) -> List[Dict[str, Any]]:
+    def extract_catalog_entities_from_json(self, json_file_path: str) -> List[str]:
         """
-        Extract catalog entities from a local JSON file (POC mode).
+        Extract catalog entities from a local JSON file (POC mode) and transform to documents.
         
         This method allows loading entities from a sample JSON file without requiring
         API credentials. Useful for demonstrations and testing.
@@ -384,11 +384,11 @@ class DatadogConnector:
                            Expected format: {"data": [entity1, entity2, ...]}
         
         Returns:
-            List of catalog entity dictionaries ready for transformation
+            List of transformed markdown documents (strings), ready for RAG
         
         Example:
             >>> connector = DatadogConnector(config)
-            >>> entities = connector.extract_catalog_entities_from_json("sample_get_entities_list.json")
+            >>> docs = connector.extract_catalog_entities_from_json("sample_get_entities_list.json")
         """
         logger.info(f"Loading Datadog entities from JSON file: {json_file_path}")
         
@@ -406,17 +406,17 @@ class DatadogConnector:
             logger.info(f"Loaded {len(entities)} entities from JSON file")
             
             # Transform entities using the same transformer as API data
-            transformed_entities = []
+            transformed_docs = []
             for entity in entities:
                 try:
                     transformed = self.catalog_transformer.transform_entity(entity)
-                    transformed_entities.append(transformed)
+                    transformed_docs.append(transformed)
                 except Exception as e:
                     logger.error(f"Error transforming entity: {e}")
                     continue
             
-            logger.info(f"Transformed {len(transformed_entities)} entities successfully")
-            return transformed_entities
+            logger.info(f"Transformed {len(transformed_docs)} entities successfully")
+            return transformed_docs
             
         except FileNotFoundError:
             logger.error(f"JSON file not found: {json_file_path}")

@@ -1,5 +1,5 @@
-# OrgGPT - RAG System with Datadog Integration
-## Executive Technical Documentation
+# OrgGPT - Unified RAG System with Datadog Integration
+## Production-Ready Intelligent Knowledge Base
 
 ---
 
@@ -10,65 +10,143 @@
 ![License](https://img.shields.io/badge/license-MIT-orange.svg)
 ![Status](https://img.shields.io/badge/status-Production%20Ready-success.svg)
 
-**Intelligent Document Query System with Vector Search & LLM Integration**
+**Unified Knowledge Base with Vector Search & LLM Integration**
 
-[Quick Start](#-quick-start-guide) • [Architecture](#-system-architecture) • [Features](#-key-features) • [Deployment](#-production-deployment)
+[Quick Start](#-quick-start) • [Features](#-key-features) • [Architecture](#-system-architecture) • [Documentation](#-documentation)
 
 </div>
 
 ---
 
-## 📚 Documentation Index
+## 🚀 Quick Start
 
-This project includes comprehensive documentation across multiple files:
+### 1. Setup Environment
+```bash
+# Copy environment template
+cp .env.template .env
 
-| Document | Size | Purpose | Audience |
-|----------|------|---------|----------|
-| **[README.md](README.md)** (This file) | 30KB | Complete technical documentation | Developers, DevOps |
-| **[QUICKSTART.md](QUICKSTART.md)** | 3KB | Quick reference card | All users |
+# Edit and add your API keys
+nano .env
+```
+
+Add to `.env`:
+```bash
+OPENAI_API_KEY=your_api_key_here
+LLM_MODEL=llama-3.3-70b-versatile
+```
+
+### 2. Build Unified Index
+```bash
+source .venv/bin/activate
+python3 index_builder.py
+```
+
+### 3. Start Application
+```bash
+uvicorn app_api:app --reload --port 8001
+```
+
+### 4. Open Browser
+**Go to:** http://localhost:8001/
+
+🎉 **That's it!** Start asking questions about your APIs, services, and SLOs!
+
+---
+
+## 📚 Documentation
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| **[QUICKSTART.md](QUICKSTART.md)** | Quick reference guide | All users - Start here! |
+| **[README.md](README.md)** | Complete documentation | Developers, DevOps |
+| **[CLEANUP_COMPLETE.md](CLEANUP_COMPLETE.md)** | Architecture cleanup notes | Developers |
 
 ---
 
 ## 📋 Table of Contents
 
-1. [Executive Summary](#-executive-summary)
-2. [System Architecture](#-system-architecture)
-3. [Key Features](#-key-features)
+1. [Overview](#-overview)
+2. [Key Features](#-key-features)
+3. [System Architecture](#-system-architecture)
 4. [Technology Stack](#-technology-stack)
-5. [Quick Start Guide](#-quick-start-guide)
-6. [Detailed Setup Instructions](#-detailed-setup-instructions)
-7. [Usage Guide](#-usage-guide)
-8. [API Documentation](#-api-documentation)
-9. [Monitoring & Observability](#-monitoring--observability)
-10. [Production Deployment](#-production-deployment)
-11. [Troubleshooting](#-troubleshooting)
-12. [Roadmap & Future Enhancements](#-roadmap--future-enhancements)
+5. [Installation](#-installation)
+6. [Usage](#-usage-guide)
+7. [API Documentation](#-api-documentation)
+8. [Monitoring](#-monitoring)
+9. [Troubleshooting](#-troubleshooting)
+10. [Development](#-development)
 
 ---
 
-## 📊 Executive Summary
+## 📊 Overview
 
-### Overview
+**OrgGPT** is a production-ready Retrieval-Augmented Generation (RAG) system that provides a **unified interface** to query organizational knowledge through natural language.
 
-**OrgGPT** is a production-ready Retrieval-Augmented Generation (RAG) system that enables intelligent querying of organizational documentation through natural language. The system indexes multiple data sources (Swagger APIs, Datadog catalogs, Datadog SLOs, technical documents) into a vector database and provides context-aware responses using Large Language Models.
+### What is Unified Architecture?
+
+Instead of maintaining separate collections for each data source, OrgGPT uses a **single unified collection** (`unified_knowledge`) that combines:
+
+- 📝 **Swagger API Documentation** - All API endpoints, parameters, responses
+- 📊 **Datadog Catalog** - Service entities and metadata
+- 🎯 **Datadog SLOs** - Service Level Objectives and corrections
+
+### Why Unified?
+
+- ✅ **Simpler**: One collection, one endpoint, one interface
+- ✅ **Smarter**: Cross-source insights and relationships
+- ✅ **Faster**: Single query searches all sources
+- ✅ **Easier**: No need to choose which source to query
 
 ### Business Value
 
-- **⚡ Instant Knowledge Access**: Query organizational knowledge in natural language
-- **🎯 Multi-Source Intelligence**: Unified interface for Swagger, Datadog (Catalog + SLO), and documents
-- **🔒 POC Mode**: Demo capabilities without API credentials
-- **📊 Real-Time Monitoring**: Visual dashboard for system health
-- **🐳 Production Ready**: Docker-based deployment with persistence
+- **⚡ Instant Access**: Natural language queries across all organizational knowledge
+- **🎯 One Source of Truth**: All data in a single, searchable collection
+- **🔒 POC Ready**: Demo capabilities without API credentials
+- **📊 Observable**: Real-time monitoring dashboard
+- **🐳 Production Ready**: Docker or local deployment
 
-### Key Metrics
+---
 
-| Metric | Value | Description |
-|--------|-------|-------------|
-| **Response Time** | <2s | Average query response time |
-| **Data Sources** | 4 | Swagger, Datadog Catalog, Datadog SLO, Documents |
-| **Total Documents** | 103+ | Indexed and searchable |
-| **Deployment** | Docker | Containerized for scalability |
-| **Uptime** | 99.9% | Target availability |
+## ✨ Key Features
+
+### 1. Unified Knowledge Base
+
+**One Collection for Everything:**
+```
+unified_knowledge
+├── 📝 Swagger API Documentation (~100+ documents)
+├── 📊 Datadog Catalog Entities (~2+ documents)
+└── 🎯 Datadog SLO Definitions (variable)
+```
+
+**Benefits:**
+- ✅ Single query searches all sources
+- ✅ Cross-source insights and relationships
+- ✅ No need to choose which source to query
+- ✅ Simpler architecture and maintenance
+
+### 2. Intelligent Query Processing
+
+- **Natural Language**: Ask questions in plain English
+- **Context-Aware**: LLM understands your intent
+- **Smart Retrieval**: Vector similarity search finds relevant docs
+- **Source Attribution**: Know where answers come from
+
+### 3. Multiple Deployment Options
+
+| Mode | Use Case | Setup | Data Storage |
+|------|----------|-------|--------------|
+| **Local** | Development | No Docker needed | `./chroma_db/` |
+| **Docker** | Production | Docker Compose | `./chroma_data/` |
+| **POC** | Demo | No API keys needed | Local or Docker |
+
+### 4. Production Ready
+
+- ✅ **Monitoring**: Real-time dashboard at `/monitor`
+- ✅ **Health Checks**: `/health` endpoint
+- ✅ **Error Handling**: Graceful failures
+- ✅ **Logging**: Comprehensive logs
+- ✅ **Persistence**: Data survives restarts
 
 ---
 
@@ -95,123 +173,70 @@ This project includes comprehensive documentation across multiple files:
           │   │   RAG Engine (LLM Layer)   │    │
           │   │  - Query Processing        │    │
           │   │  - Context Retrieval       │    │
-          │   │  - LLM Integration (GPT-4) │    │
+          │   │  - LLM Integration         │    │
           │   └────────┬───────────────────┘    │
           │            │                         │
           │   ┌────────▼───────────────────┐    │
           │   │   Vector Store Manager     │    │
-          │   │  - Collection Selection    │    │
+          │   │  - unified_knowledge       │    │
           │   │  - Embedding Search        │    │
           │   └────────┬───────────────────┘    │
           └────────────┼────────────────────────┘
                        │
           ┌────────────▼────────────────────────┐
           │     CHROMADB (Vector Database)      │
-          │         🐳 Docker Container          │
+          │      Local or Docker Container       │
           │                                      │
-          │  ┌──────────┐  ┌─────────────────┐  │
-          │  │ swagger  │  │ datadog_catalog │  │
-          │  │ 101 docs │  │ datadog_slo     │  │
-          │  └──────────┘  └─────────────────┘  │
+          │  ┌──────────────────────────────┐   │
+          │  │   unified_knowledge          │   │
+          │  │  - Swagger (100+ docs)       │   │
+          │  │  - Datadog Catalog (2+ docs) │   │
+          │  │  - Datadog SLO (variable)    │   │
+          │  └──────────────────────────────┘   │
           │                                      │
-          │  Persistent Storage: ./chroma_data  │
-          └──────────────────────────────────────┘
-                       ▲
-                       │
-          ┌────────────┴────────────────────────┐
-          │       DATA INGESTION LAYER          │
-          │                                      │
-          │  ┌──────────────┐  ┌──────────────┐ │
-          │  │   Swagger    │  │   Datadog    │ │
-          │  │  Connector   │  │  Connector   │ │
-          │  └──────┬───────┘  └──────┬───────┘ │
-          │         │                  │         │
-          │  ┌──────▼──────────────────▼───────┐ │
-          │  │   Processing Pipeline          │ │
-          │  │  - Chunking (1000 chars)       │ │
-          │  │  - Embedding (MiniLM-L6-v2)    │ │
-          │  │  - Storage                     │ │
-          │  └────────────────────────────────┘ │
+          │   All sources in ONE collection!     │
           └──────────────────────────────────────┘
 ```
 
-### Component Diagram
+### Data Flow
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│                     PRESENTATION LAYER                          │
-├────────────────────────────────────────────────────────────────┤
-│  • Web Interface (chat.html)                                   │
-│  • Monitoring Dashboard (chromadb_monitor.html)                │
-│  • REST API Endpoints                                          │
-└────────────────────────────────────────────────────────────────┘
-                              │
-┌────────────────────────────────────────────────────────────────┐
-│                      APPLICATION LAYER                          │
-├────────────────────────────────────────────────────────────────┤
-│  • FastAPI Application (app_api.py)                            │
-│  • RAG Engine (rag_engine.py)                                  │
-│  • LLM Layer (llm_layer.py)                                    │
-└────────────────────────────────────────────────────────────────┘
-                              │
-┌────────────────────────────────────────────────────────────────┐
-│                     DATA ACCESS LAYER                           │
-├────────────────────────────────────────────────────────────────┤
-│  • Vector Store (store.py) - HTTP/Persistent modes             │
-│  • Embedder (embedder.py) - Sentence Transformers              │
-└────────────────────────────────────────────────────────────────┘
-                              │
-┌────────────────────────────────────────────────────────────────┐
-│                    PERSISTENCE LAYER                            │
-├────────────────────────────────────────────────────────────────┤
-│  • ChromaDB (Docker Container)                                 │
-│  • Persistent Volume (./chroma_data)                           │
-└────────────────────────────────────────────────────────────────┘
-                              │
-┌────────────────────────────────────────────────────────────────┐
-│                     INGESTION LAYER                             │
-├────────────────────────────────────────────────────────────────┤
-│  • Swagger Connector - API documentation indexing              │
-│  • Datadog Connector - Service catalog integration             │
-│  • Document Connector - .docx file processing                  │
-│  • Chunker - Text segmentation (1000 chars, 200 overlap)      │
-└────────────────────────────────────────────────────────────────┘
-```
-
-### Data Flow Diagram
-
-```
-┌─────────────┐
-│    USER     │
-│   Query     │
-└──────┬──────┘
+User Query ("What APIs are available?")
        │
        ▼
 ┌──────────────────────────────────────────┐
-│  1. Query Received                       │
+│  1. Web Interface (chat.html)            │
 │     └─ POST /query                       │
-│        collection: swagger|datadog_poc   │
 └──────┬───────────────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────┐
-│  2. Embedding Generation                 │
-│     └─ Embedder.encode(query)            │
+│  2. FastAPI Endpoint                     │
+│     └─ app_api.py                        │
+│        Receives query                    │
+└──────┬───────────────────────────────────┘
+       │
+       ▼
+┌──────────────────────────────────────────┐
+│  3. RAG Engine                           │
+│     └─ rag_engine.py                     │
+│        Creates query embedding           │
 │        Model: all-MiniLM-L6-v2           │
 │        Output: 384-dim vector            │
 └──────┬───────────────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────┐
-│  3. Similarity Search                    │
+│  4. Vector Search                        │
 │     └─ VectorStore.search()              │
 │        ChromaDB.query()                  │
-│        Returns: Top 3 matches            │
+│        Collection: unified_knowledge     │
+│        Returns: Top 3 relevant docs      │
 └──────┬───────────────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────┐
-│  4. Context Assembly                     │
+│  5. Context Assembly                     │
 │     └─ Concatenate matched documents     │
 │        Add metadata                      │
 │        Format for LLM                    │
@@ -219,39 +244,24 @@ This project includes comprehensive documentation across multiple files:
        │
        ▼
 ┌──────────────────────────────────────────┐
-│  5. LLM Processing                       │
-│     └─ OpenAI GPT-4                      │
+│  6. LLM Processing                       │
+│     └─ OpenAI API / Groq                 │
+│        Model: GPT-4 or Llama 3.3         │
 │        Prompt: Question + Context        │
 │        Temperature: 0.7                  │
 └──────┬───────────────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────┐
-│  6. Response Formation                   │
+│  7. Response Formation                   │
 │     └─ Format answer                     │
 │        Add source metadata               │
 │        Return JSON                       │
 └──────┬───────────────────────────────────┘
        │
        ▼
-┌─────────────┐
-│    USER     │
-│   Answer    │
-└─────────────┘
+    Answer to User
 ```
-
----
-
-## ✨ Key Features
-
-### 1. Multi-Source Data Integration
-
-| Source | Description | Documents | Status |
-|--------|-------------|-----------|--------|
-| **Swagger** | API documentation from JSON/YAML | 101 | ✅ Active |
-| **Datadog Catalog** | Service catalog entities | 2 (POC) | ✅ Active |
-| **Datadog SLO** | Service Level Objectives & corrections | Variable | ✅ Active |
-| **Documents** | .docx technical documents | Variable | ✅ Active |
 
 ---
 
@@ -265,7 +275,7 @@ This project includes comprehensive documentation across multiple files:
 | **FastAPI** | Latest | Web framework |
 | **Uvicorn** | Latest | ASGI server |
 | **ChromaDB** | Latest | Vector database |
-| **OpenAI** | GPT-4 | Language model |
+| **OpenAI** | GPT-4 / Groq | Language model |
 | **Sentence Transformers** | all-MiniLM-L6-v2 | Embeddings |
 
 ### Frontend
@@ -280,404 +290,147 @@ This project includes comprehensive documentation across multiple files:
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| **Containerization** | Docker | ChromaDB hosting |
+| **Containerization** | Docker (optional) | ChromaDB hosting |
 | **Orchestration** | Docker Compose | Multi-container management |
-| **Storage** | Volumes | Data persistence |
-| **Networking** | Bridge | Container communication |
-
-### Development Tools
-
-- **Git** - Version control
-- **VS Code** - IDE
-- **Python venv** - Virtual environments
-- **pip** - Package management
-
-### Testing
-
-The project includes comprehensive test suites for each integration:
-
-```bash
-# Test Datadog Catalog integration
-python test_datadog_catalog.py
-
-# Test Datadog SLO integration
-python test_datadog_slo.py
-```
-
-Both test files use mocked data and don't require API credentials.
+| **Storage** | Local or Volumes | Data persistence |
 
 ---
 
-## 🚀 Quick Start Guide
+## 💻 Installation
 
-### Prerequisites Check
+### Prerequisites
 
-```bash
-# Verify Python
-python --version  # Should be 3.11+
+- Python 3.11+
+- pip
+- Docker (optional, for production)
+- OpenAI API key or Groq API key
 
-# Verify Docker
-docker --version
-docker-compose --version
-
-# Verify Git
-git --version
-```
-
-### Installation (5 Minutes)
+### Step 1: Clone Repository
 
 ```bash
-# 1. Clone repository
 git clone https://github.com/karthaveerya-droid/Orgpt.git
 cd Orgpt
+```
 
-# 2. Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # macOS/Linux
-# .venv\Scripts\activate   # Windows
+### Step 2: Create Virtual Environment
 
-# 3. Install dependencies
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+### Step 3: Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-# 4. Configure environment
-cp .env.docker .env
-# Edit .env with your OpenAI API key
+### Step 4: Configure Environment
 
-# 5. Start ChromaDB
-docker-compose up -d chromadb
+```bash
+cp .env.template .env
+nano .env  # Edit with your API keys
+```
 
-# 6. Build indexes
-export CHROMA_CLIENT_TYPE=http
-python index_builder.py datadog_catalog_poc  # Datadog Catalog POC
-python index_builder.py datadog_slo_poc      # Datadog SLO POC
-python index_builder.py swagger
+**Required in `.env`:**
+```bash
+OPENAI_API_KEY=your_api_key_here
+LLM_MODEL=llama-3.3-70b-versatile
+```
 
-# 7. Start application
+### Step 5: Build Unified Index
+
+```bash
+python3 index_builder.py
+```
+
+### Step 6: Start Application
+
+```bash
 uvicorn app_api:app --reload --port 8001
 ```
 
-### Verification
+### Step 7: Access Application
 
-```bash
-# Check ChromaDB
-curl http://localhost:8000/api/v1/heartbeat
-
-# Check Application
-curl http://localhost:8001/health
-
-# Open browser
-open http://localhost:8001/
-```
-
-**🎉 You're ready! Open http://localhost:8001/ and start querying.**
+Open http://localhost:8001 in your browser!
 
 ---
 
-## 📖 Detailed Setup Instructions
+## 📖 Usage Guide
 
-### Step 1: Environment Setup
-
-#### 1.1 Python Virtual Environment
+### Building the Index
 
 ```bash
-# Create isolated environment
-python3.11 -m venv .venv
+# Default: Build unified index with POC mode (no API keys needed)
+python3 index_builder.py
 
-# Activate
-source .venv/bin/activate
+# Unified with API mode (requires Datadog API keys)
+python3 index_builder.py unified
 
-# Verify
-which python
-# Should show: /path/to/Orgpt/.venv/bin/python
+# Unified with POC mode (explicit)
+python3 index_builder.py unified --poc
 ```
 
-#### 1.2 Install Dependencies
+### Starting the Server
 
 ```bash
-# Install all required packages
-pip install -r requirements.txt
-
-# Verify critical packages
-pip list | grep -E "fastapi|chromadb|openai|sentence-transformers"
-```
-
-#### 1.3 Configure Environment Variables
-
-```bash
-# Copy template
-cp .env.docker .env
-
-# Edit .env file
-nano .env
-```
-
-**Required Variables:**
-```bash
-# OpenAI Configuration
-OPENAI_API_KEY=sk-your-key-here
-LLM_MODEL=gpt-4o-mini
-
-# ChromaDB Configuration
-CHROMA_CLIENT_TYPE=http
-CHROMA_HOST=localhost
-CHROMA_PORT=8000
-
-# Application
-HOST=0.0.0.0
-PORT=8001
-```
-
-### Step 2: ChromaDB Setup
-
-#### 2.1 Start Docker Container
-
-```bash
-# Start ChromaDB
-docker-compose up -d chromadb
-
-# Verify it's running
-docker ps | grep chromadb
-
-# Expected output:
-# orgpt-chromadb   chromadb/chroma:latest   Up X minutes
-```
-
-#### 2.2 Verify Connection
-
-```bash
-# Test HTTP connection
-curl http://localhost:8000/api/v1/heartbeat
-
-# Test from Python
-python -c "
-import chromadb
-client = chromadb.HttpClient(host='localhost', port=8000)
-print('✅ Connected!', client.heartbeat())
-"
-```
-
-#### 2.3 Monitor Health
-
-```bash
-# View logs
-docker-compose logs -f chromadb
-
-# Check status
-docker-compose ps chromadb
-```
-
-### Step 3: Data Indexing
-
-#### 3.1 Build Datadog POC Index
-
-```bash
-# Set environment
-export CHROMA_CLIENT_TYPE=http
-
-# Build from sample JSON (no API keys needed)
-python index_builder.py datadog_poc
-
-# Expected output:
-# ✅ POC Index built successfully
-# 📊 2 chunks stored in 'datadog_poc' collection
-```
-
-#### 3.2 Build Swagger Index
-
-```bash
-# Build from swagger sources
-python index_builder.py swagger
-
-# Expected output:
-# ✅ Swagger index built successfully
-# 📊 101 chunks stored in 'swagger' collection
-```
-
-#### 3.3 Verify Indexes
-
-```bash
-# Using Python
-python -c "
-import chromadb
-client = chromadb.HttpClient(host='localhost', port=8000)
-for col in client.list_collections():
-    print(f'{col.name}: {col.count()} documents')
-"
-
-# Expected output:
-# swagger: 101 documents
-# datadog_poc: 2 documents
-```
-
-### Step 4: Application Launch
-
-#### 4.1 Start Web Server
-
-```bash
-# Start with auto-reload (development)
-export CHROMA_CLIENT_TYPE=http
+# Development mode (auto-reload on file changes)
 uvicorn app_api:app --reload --port 8001
 
-# Or start in background
+# Production mode
+uvicorn app_api:app --host 0.0.0.0 --port 8001
+
+# Background mode
 nohup uvicorn app_api:app --port 8001 > server.log 2>&1 &
 ```
 
-#### 4.2 Verify Server
+### Using the Web Interface
 
-```bash
-# Health check
-curl http://localhost:8001/health
+1. Open http://localhost:8001
+2. Type your question in the input box
+3. Press "Send" or hit Enter
+4. View the AI-generated answer
 
-# Expected response:
-# {"status":"ok","message":"Orgpt Swagger Agent is running."}
-```
-
-#### 4.3 Access Interfaces
-
-| URL | Description |
-|-----|-------------|
-| http://localhost:8001/ | Main chat interface |
-| http://localhost:8001/monitor | Monitoring dashboard |
-| http://localhost:8001/health | Health check endpoint |
-
-### Step 5: First Query
-
-#### 5.1 Web Interface
-
-1. Open http://localhost:8001/
-2. Select data source: **Swagger** or **Datadog**
-3. Type question: "What services are available?"
-4. Click **Send** or press Enter
-5. View AI-generated answer
-
-#### 5.2 API Call
-
-```bash
-# Query Swagger collection
-curl -X POST http://localhost:8001/query \
-  -F "query=What endpoints are available?" \
-  -F "collection=swagger"
-
-# Query Datadog collection
-curl -X POST http://localhost:8001/query \
-  -F "query=What services are in the catalog?" \
-  -F "collection=datadog_poc"
-```
-
----
-
-## 📚 Usage Guide
-
-### Web Interface
-
-#### Selecting Data Sources
-
-```
-┌─────────────────────────────────────┐
-│  Active Data Source: 📝 Swagger     │
-│                                     │
-│  ○ 📝 Swagger Documentation         │
-│  ○ 📊 Datadog                       │
-└─────────────────────────────────────┘
-```
-
-- **Swagger**: Query API documentation
-- **Datadog**: Query service catalog (POC mode)
-
-#### Asking Questions
-
-**Good Questions:**
-- ✅ "What endpoints are available in the API?"
-- ✅ "How do I authenticate with the service?"
-- ✅ "What services are deployed in production?"
-- ✅ "Show me all GET endpoints"
-
-**Poor Questions:**
-- ❌ "Hello" (too generic)
-- ❌ "What's the weather?" (out of scope)
-
-### CLI Tools
-
-#### Monitor ChromaDB
-
-```bash
-# Interactive monitor
-python monitor_chromadb.py
-
-# Options:
-# 1. Test a query
-# 2. Show detailed collection info
-# 3. Export connection info to JSON
-```
-
-#### Build Indexes
-
-```bash
-# Build all indexes
-python index_builder.py
-
-# Build specific source
-python index_builder.py swagger
-python index_builder.py datadog_catalog_poc  # Catalog POC (no API keys)
-python index_builder.py datadog_slo_poc      # SLO POC (no API keys)
-python index_builder.py datadog_catalog      # Catalog (requires API keys)
-python index_builder.py datadog_slo          # SLO (requires API keys)
-
-# Custom JSON for POC
-python index_builder.py datadog_catalog_poc my_custom_catalog.json
-python index_builder.py datadog_slo_poc my_custom_slo.json
-```
-
-#### View Collections
-
-```bash
-# List all collections
-python -c "
-import chromadb
-client = chromadb.HttpClient(host='localhost', port=8000)
-for col in client.list_collections():
-    print(f'{col.name}: {col.count()} docs')
-"
-```
+**Example queries:**
+- "What API endpoints are available?"
+- "List all Datadog services"
+- "What are our SLO targets?"
+- "How do I authenticate to the API?"
 
 ---
 
 ## 🔌 API Documentation
 
-### Endpoints
+### POST /query
 
-#### GET `/`
-**Description:** Main chat interface  
-**Response:** HTML page  
-**Example:**
+**Main query endpoint** - Search the unified knowledge base.
+
+**Request:**
 ```bash
-curl http://localhost:8001/
+curl -X POST http://localhost:8001/query \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "query=What APIs are available?"
 ```
-
-#### POST `/query`
-**Description:** Query any collection  
-**Parameters:**
-- `query` (string, required): User question
-- `collection` (string, optional): Collection name (default: "swagger")
 
 **Response:**
 ```json
 {
-  "answer": "The API provides the following endpoints...",
-  "source": "swagger",
-  "note": "Additional metadata if applicable"
+  "answer": "Based on the documentation, the following APIs are available...",
+  "source": "unified_knowledge",
+  "source_name": "Unified Knowledge Base",
+  "source_icon": "🔍",
+  "note": "Unified search across all data sources"
 }
 ```
 
-**Example:**
-```bash
-curl -X POST http://localhost:8001/query \
-  -F "query=What services exist?" \
-  -F "collection=datadog_poc"
-```
+### POST /chat
 
-#### GET `/health`
-**Description:** Health check  
+**Alias for /query** - Same functionality, different endpoint name.
+
+### GET /health
+
+**Health check endpoint** - Verify server is running.
+
 **Response:**
 ```json
 {
@@ -686,27 +439,31 @@ curl -X POST http://localhost:8001/query \
 }
 ```
 
-#### GET `/monitor`
-**Description:** Monitoring dashboard  
-**Response:** HTML monitoring interface  
+### GET /monitor
 
-#### GET `/chromadb/status`
-**Description:** ChromaDB connection status  
+**Monitoring dashboard** - Visual interface showing ChromaDB status, collections, and document counts.
+
+### GET /chromadb/status
+
+**ChromaDB status API** - Detailed status information.
+
 **Response:**
 ```json
 {
   "docker": {
     "running": true,
-    "health": "✅ Healthy"
+    "health": "Healthy"
   },
   "connection": {
     "success": true,
     "type": "HTTP (localhost:8000)",
-    "heartbeat": "1776158368092924847"
+    "heartbeat": "1234567890"
   },
   "collections": [
-    {"name": "swagger", "count": 101},
-    {"name": "datadog_poc", "count": 2}
+    {
+      "name": "unified_knowledge",
+      "count": 103
+    }
   ],
   "total_documents": 103
 }
@@ -714,41 +471,181 @@ curl -X POST http://localhost:8001/query \
 
 ---
 
-## 📊 Monitoring & Observability
+## 📊 Monitoring
 
-### Monitoring Dashboard
+### Web Dashboard
 
-Access at: **http://localhost:8001/monitor**
+Access the monitoring dashboard at http://localhost:8001/monitor
 
 **Features:**
-- 🐳 Docker container status
-- 🔗 ChromaDB connection health
-- 📊 Collection statistics
-- 📈 Document counts
-- 🔄 Auto-refresh every 30 seconds
+- ChromaDB connection status
+- Docker container health
+- Collection statistics
+- Document counts
+- Real-time updates
 
-### Health Checks
+### Command Line
 
 ```bash
-# Application health
+# Check collection size
+python3 -c "
+from vector_store.store import VectorStore
+vs = VectorStore('unified_knowledge')
+print(f'Documents: {vs.collection.count()}')
+"
+
+# Check server health
 curl http://localhost:8001/health
 
-# ChromaDB health
-curl http://localhost:8000/api/v1/heartbeat
-
-# Docker health
-docker-compose ps chromadb
+# Check ChromaDB (if using Docker)
+docker-compose ps
+docker-compose logs chromadb
 ```
 
-### Logs
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **"Collection not found"** | Build index: `python3 index_builder.py` |
+| **"Could not connect to ChromaDB"** | Check if Docker is running: `docker-compose ps` |
+| **"LLM_MODEL must be set"** | Add `LLM_MODEL` to `.env` file |
+| **Empty/no results** | Rebuild index: `python3 index_builder.py` |
+| **500 Internal Server Error** | Check logs: `tail -f server.log` |
+| **Slow queries** | Restart ChromaDB: `docker-compose restart chromadb` |
+
+### Debug Mode
 
 ```bash
-# Application logs (if running in background)
-tail -f server.log
+# Enable debug logging
+export DEBUG=true
 
-# ChromaDB logs
-docker-compose logs -f chromadb
-
-# Last 100 lines
-docker-compose logs --tail 100 chromadb
+# Run with verbose output
+uvicorn app_api:app --reload --port 8001 --log-level debug
 ```
+
+### Reset Database
+
+```bash
+# Stop application
+pkill -f uvicorn
+
+# Remove local database
+rm -rf chroma_db/
+
+# Rebuild index
+python3 index_builder.py
+
+# Restart app
+uvicorn app_api:app --reload --port 8001
+```
+
+---
+
+## 👨‍💻 Development
+
+### Project Structure
+
+```
+Orgpt/
+├── app_api.py              # Main FastAPI application
+├── index_builder.py        # Unified index builder
+├── main.py                 # CLI interface
+├── requirements.txt        # Python dependencies
+├── .env                    # Configuration (not in git)
+├── .env.template           # Template for .env
+├── docker-compose.yml      # Docker setup
+│
+├── templates/              # Web interfaces
+│   ├── chat.html          # Main chat interface
+│   └── chromadb_monitor.html
+│
+├── ingestion/             # Data connectors
+│   ├── base_connector.py  # Base interface
+│   ├── Swagger_connector/
+│   ├── Datadog_connector/
+│   └── Document_connector/
+│
+├── processing/            # NLP pipeline
+│   ├── chunker.py        # Text chunking
+│   └── embedder.py       # Embeddings
+│
+├── retrieval/            # RAG engine
+│   └── rag_engine.py    # Query processing
+│
+├── vector_store/        # Database layer
+│   └── store.py        # ChromaDB interface
+│
+└── llm/                # LLM integration
+    └── llm_layer.py   # OpenAI/Groq wrapper
+```
+
+### Adding New Data Sources
+
+1. Create connector in `ingestion/`:
+```python
+from ingestion.base_connector import DataSourceConnector
+
+class MyConnector(DataSourceConnector):
+    def get_source_name(self) -> str:
+        return "my_source"
+    
+    def extract_documents(self) -> List[str]:
+        # Your extraction logic
+        return documents
+    
+    def get_metadata(self) -> Dict[str, Any]:
+        return {"source_type": "my_source"}
+```
+
+2. Register in `index_builder.py`:
+```python
+builder = IndexBuilder()
+builder.register_connector(MyConnector())
+builder.build_unified_index()
+```
+
+### Running Tests
+
+```bash
+# Test Datadog Catalog connector
+python3 test_datadog_catalog.py
+
+# Test Datadog SLO connector
+python3 test_datadog_slo.py
+
+# Test Swagger connector
+python3 test_swagger_connector.py
+```
+
+---
+
+## 📝 License
+
+MIT License - See LICENSE file for details
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+---
+
+## 📞 Support
+
+For issues, questions, or contributions:
+- GitHub Issues: https://github.com/karthaveerya-droid/Orgpt/issues
+- Documentation: [QUICKSTART.md](QUICKSTART.md)
+
+---
+
+**Made with ❤️ by the OrgGPT Team**

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ORGpt</title>
+  <title>OrgGPT</title>
   <style>
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -72,38 +72,48 @@
     button:hover {
       background: #0040c1;
     }
+    .status-bar {
+      background: #e8f4fd;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #0056ff;
+    }
+    .recommended {
+      background: #d4edda;
+      border-color: #28a745;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+      color: #155724;
+    }
   </style>
 </head>
 
 <body>
   <div id="chatbox">
-    <h2>Orgpt Chat Interface</h2>
+    <h2>🔍 OrgGPT</h2>
     
     <!-- Status Bar -->
-    <div id="status-bar" style="background: #f0fff0; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #00aa00;">
+    <div class="status-bar" id="status-bar">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <div>
-          <span style="font-weight: 600;">Active Data Source:</span>
-          <span id="active-source" style="margin-left: 1rem; color: #00aa00; font-weight: 600;">📝 Swagger Documentation</span>
+          <span style="font-weight: 600;">Data Source:</span>
+          <span id="active-source" style="margin-left: 1rem; color: #0056ff; font-weight: 600;">
+          </span>
+          <span class="recommended" id="recommended-badge">All Sources</span>
         </div>
-        <div>
-          <label style="margin-right: 0.5rem;">
-            <input type="radio" name="mode" value="swagger" checked /> 📝 Swagger
-          </label>
-          <label style="margin-right: 0.5rem;">
-            <input type="radio" name="mode" value="datadog_poc" /> 📊 Datadog Catalog
-          </label>
-          <label>
-            <input type="radio" name="mode" value="datadog_slo_poc" /> 🎯 Datadog SLO
-          </label>
-        </div>
+      </div>
+      <div style="margin-top: 0.5rem; color: #666; font-size: 0.9em;">
+        Swagger API Documentation + Datadog Catalog + Datadog SLOs
       </div>
     </div>
 
     <div id="messages"></div>
 
     <form id="chat-form">
-      <input type="text" id="query" name="query" placeholder="Ask Orgpt about any API..." required />
+      <input type="text" id="query" name="query" placeholder="Ask about APIs, Datadog services, SLOs, or anything..." required />
       <button type="submit">Send</button>
     </form>
   </div>
@@ -112,38 +122,6 @@
     const form = document.getElementById("chat-form");
     const messages = document.getElementById("messages");
     const queryInput = document.getElementById("query");
-    const modeRadios = document.querySelectorAll('input[name="mode"]');
-
-    // Update active source indicator and placeholder based on mode
-    modeRadios.forEach(radio => {
-      radio.addEventListener("change", (e) => {
-        const statusBar = document.getElementById("status-bar");
-        const activeSource = document.getElementById("active-source");
-        
-        if (e.target.value === "datadog_poc") {
-          // Datadog Catalog mode (POC)
-          statusBar.style.borderLeft = "4px solid #ff9900";
-          statusBar.style.background = "#fff8e6";
-          activeSource.style.color = "#ff9900";
-          activeSource.innerHTML = "📊 Datadog Catalog";
-          queryInput.placeholder = "Ask about Datadog services...";
-        } else if (e.target.value === "datadog_slo_poc") {
-          // Datadog SLO mode (POC)
-          statusBar.style.borderLeft = "4px solid #9c27b0";
-          statusBar.style.background = "#f3e5f5";
-          activeSource.style.color = "#9c27b0";
-          activeSource.innerHTML = "🎯 Datadog SLO";
-          queryInput.placeholder = "Ask about SLOs and availability targets...";
-        } else {
-          // Swagger mode (default)
-          statusBar.style.borderLeft = "4px solid #00aa00";
-          statusBar.style.background = "#f0fff0";
-          activeSource.style.color = "#00aa00";
-          activeSource.innerHTML = "📝 Swagger Documentation";
-          queryInput.placeholder = "Ask Orgpt about any API...";
-        }
-      });
-    });
 
     // Submit form
     form.addEventListener("submit", async (e) => {
@@ -157,43 +135,35 @@
       messages.scrollTop = messages.scrollHeight;
 
       try {
-        // Get selected mode (collection name)
-        const collection = document.querySelector('input[name="mode"]:checked').value;
-        
-        // Use unified /query endpoint with collection parameter
+        // Query unified endpoint (always uses unified_knowledge)
         const response = await fetch("/query", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: new URLSearchParams({ 
-            query: query,
-            collection: collection
+            query: query
           })
         });
 
         const data = await response.json();
-        console.log("📦 Raw response:", data);
+        console.log("📦 Response:", data);
 
-        // ✅ Handle both success and error cases
+        // Handle response
         if (data.answer) {
-          // Add source indicator based on collection
-          const sourceIcons = {
-            "swagger": "📝 Swagger",
-            "datadog_poc": "📊 Datadog Catalog",
-            "datadog_slo_poc": "🎯 Datadog SLO"
-          };
-          const source = sourceIcons[collection] || "🔍 OrgGPT";
-          const note = data.note ? `<div style="color: #ff9900; font-size: 0.9em; margin-top: 0.5rem;">ℹ️ ${data.note}</div>` : "";
-          messages.innerHTML += `<div class="bot"><b>${source}:</b><pre>${data.answer}</pre>${note}</div>`;
+          const sourceIcon = data.source_icon || "🔍";
+          const sourceName = data.source_name || data.source;
+          const note = data.note ? `<div style="color: #666; font-size: 0.9em; margin-top: 0.5rem;">ℹ️ ${data.note}</div>` : "";
+          messages.innerHTML += `<div class="bot"><b>${sourceIcon} ${sourceName}:</b><pre>${data.answer}</pre>${note}</div>`;
         } else if (data.error) {
-          messages.innerHTML += `<div class="bot"><b>Error:</b> ${data.error}</div>`;
+          messages.innerHTML += `<div class="bot"><b>❌ Error:</b> ${data.error}</div>`;
         } else {
-          messages.innerHTML += `<div class="bot"><b>Orgpt:</b> (No valid answer returned)</div>`;
+          messages.innerHTML += `<div class="bot"><b>⚠️ Warning:</b> No answer returned</div>`;
         }
 
         messages.scrollTop = messages.scrollHeight;
       } catch (err) {
         console.error("❌ Fetch error:", err);
-        messages.innerHTML += `<div class="bot"><b>Error:</b> Unable to connect to backend.</div>`;
+        messages.innerHTML += `<div class="bot"><b>❌ Error:</b> Unable to connect to backend.</div>`;
+        messages.scrollTop = messages.scrollHeight;
       }
     });
   </script>
