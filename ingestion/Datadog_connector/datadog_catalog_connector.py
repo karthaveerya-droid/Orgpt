@@ -5,13 +5,6 @@ Datadog Catalog Entity connector implementing DataSourceConnector interface.
 
 This connector extracts service catalog data from Datadog and transforms
 it into RAG-ready documents following the Strategy Pattern.
-
-SOLID Principles:
-- SRP: Only responsible for Datadog Catalog extraction
-- OCP: Can be extended without modification
-- LSP: Can substitute any DataSourceConnector
-- ISP: Implements minimal required interface
-- DIP: Depends on DataSourceConnector abstraction
 """
 
 import sys
@@ -69,7 +62,15 @@ class DatadogCatalogConnector(DataSourceConnector):
             max_pages: Maximum pages to fetch from API
         """
         self.poc_mode = poc_mode
-        self.json_file = json_file or "sample_get_entities_list.json"
+        
+        # Build relative path to JSON file from project root
+        if json_file:
+            self.json_file = json_file
+        else:
+            # Default: sample_get_entities_list.json in project root
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+            self.json_file = os.path.join(project_root, "sample_get_entities_list.json")
+        
         self.kinds = kinds
         self.max_pages = max_pages
         

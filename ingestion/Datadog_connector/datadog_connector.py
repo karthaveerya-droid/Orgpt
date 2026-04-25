@@ -9,12 +9,6 @@ This module coordinates:
   3. Transformation to RAG-ready documents
   4. Vector store ingestion
 
-Architecture:
-  - Client: Handles HTTP communication
-  - Extractors: Fetch data from Datadog APIs
-  - Transformers: Convert to text format
-  - Connector: Orchestrates the flow
-
 Data Sources:
   - /api/v2/catalog/entity (CatalogEntityExtractor + CatalogEntityTransformer)
   - /api/v1/slo (SLOExtractor + SLOTransformer)
@@ -61,9 +55,6 @@ class DatadogConnector:
     - Catalog Entity API (/api/v2/catalog/entity) 
     - SLO API (/api/v1/slo) 
     
-    Follows Open/Closed Principle:
-      - Closed for modification (stable core)
-      - Open for extension (new extractors/transformers)
     
     Usage:
         # Catalog Entities

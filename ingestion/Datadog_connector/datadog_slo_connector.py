@@ -5,13 +5,6 @@ Datadog SLO connector implementing DataSourceConnector interface.
 
 This connector extracts Service Level Objectives from Datadog and transforms
 them into RAG-ready documents following the Strategy Pattern.
-
-SOLID Principles:
-- SRP: Only responsible for Datadog SLO extraction
-- OCP: Can be extended without modification
-- LSP: Can substitute any DataSourceConnector
-- ISP: Implements minimal required interface
-- DIP: Depends on DataSourceConnector abstraction
 """
 
 import sys
@@ -67,7 +60,15 @@ class DatadogSLOConnector(DataSourceConnector):
             include_corrections: If True, also extract SLO corrections (API mode only)
         """
         self.poc_mode = poc_mode
-        self.json_file = json_file or "sample_get_slo_list.json"
+        
+        # Build relative path to JSON file from project root
+        if json_file:
+            self.json_file = json_file
+        else:
+            # Default: sample_get_slo_list.json in project root
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+            self.json_file = os.path.join(project_root, "sample_get_slo_list.json")
+        
         self.include_corrections = include_corrections
         
         # Initialize internal Datadog connector
