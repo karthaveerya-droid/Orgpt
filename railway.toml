@@ -2,6 +2,9 @@
 # ================================
 # Optimized for FastAPI + ChromaDB + Sentence Transformers
 
+[source]
+rootDirectory = "."
+
 [build]
 builder = "NIXPACKS"
 
