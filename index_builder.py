@@ -242,6 +242,18 @@ def main():
     if poc_mode:
         sys.argv.remove("--poc")
     
+    # Check for JSON Datadog file flag
+    json_datadog_file = None
+    if "--json-datadog" in sys.argv:
+        idx = sys.argv.index("--json-datadog")
+        if idx + 1 < len(sys.argv):
+            json_datadog_file = sys.argv[idx + 1]
+            sys.argv.remove("--json-datadog")
+            sys.argv.remove(json_datadog_file)
+        else:
+            logger.error("\n Error: --json-datadog requires a file path")
+            return 1
+    
     builder = IndexBuilder()
     
     if len(sys.argv) > 1:
@@ -259,13 +271,20 @@ def main():
                 builder.register_connector(DatadogCatalogConnector())
                 builder.register_connector(DatadogSLOConnector())
             
+            # Optional: Add JSON Datadog file connector
+            if json_datadog_file:
+                from ingestion.Datadog_connector import DatadogJSONConnector
+                logger.info(f"  Adding Datadog JSON file: {json_datadog_file}")
+                builder.register_connector(DatadogJSONConnector(json_datadog_file))
+            
             success = builder.build_unified_index()
         else:
             logger.error(f"\n Unknown command: {command}")
             logger.info("\nAvailable commands:")
-            logger.info("    python index_builder.py                      # Build unified index (POC mode)")
-            logger.info("    python index_builder.py unified              # Build unified index (API mode)")
-            logger.info("    python index_builder.py unified --poc        # Build unified index (POC mode)")
+            logger.info("    python index_builder.py                                    # Build unified index (POC mode)")
+            logger.info("    python index_builder.py unified                            # Build unified index (API mode)")
+            logger.info("    python index_builder.py unified --poc                      # Build unified index (POC mode)")
+            logger.info("    python index_builder.py unified --poc --json-datadog FILE  # Include structured JSON file")
             logger.info("")
             return 1
     else:
@@ -274,6 +293,13 @@ def main():
         builder.register_connector(SwaggerConnector())
         builder.register_connector(DatadogCatalogConnector(poc_mode=True))
         builder.register_connector(DatadogSLOConnector(poc_mode=True))
+        
+        # Optional: Add JSON Datadog file connector
+        if json_datadog_file:
+            from ingestion.Datadog_connector import DatadogJSONConnector
+            logger.info(f"  Adding Datadog JSON file: {json_datadog_file}")
+            builder.register_connector(DatadogJSONConnector(json_datadog_file))
+        
         success = builder.build_unified_index()
     
     return 0 if success else 1
