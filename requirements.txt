@@ -1,19 +1,27 @@
+# Core API
 fastapi
 uvicorn
+python-multipart
 
+# Vector Database
 chromadb
-duckdb
 
+# Embeddings & ML
 sentence-transformers
-transformers
-huggingface_hub
 
+# HTTP & Data Processing
 requests
 pyyaml
 numpy
-
-openai
-python-dotenv
-tqdm
-
 python-docx
+
+# LLM Integrations
+openai
+groq
+
+# Environment & Config
+python-dotenv
+
+# Datadog Integration
+datadog-api-client
+python-dateutil

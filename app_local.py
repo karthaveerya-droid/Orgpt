@@ -51,7 +51,10 @@ def query_orgpt(query):
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Serve chat interface."""
-    return templates.TemplateResponse("chat.html", {"request": request})
+    return templates.TemplateResponse(
+        request=request,
+        name="chat.html"
+    )
 
 
 @app.post("/chat")
@@ -62,7 +65,7 @@ async def chat(query: str = Form(...)):
 
         answer = query_orgpt(query)
 
-        # ✅ make sure answer is printable + serializable
+        # make sure answer is printable + serializable
         if not isinstance(answer, str):
             answer = str(answer)
 

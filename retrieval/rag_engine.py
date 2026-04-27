@@ -42,5 +42,5 @@ class RAGEngine:
         answer = self.llm.generate(prompt)
         print("Answer:", answer)
 
-        # ✅ This line is essential
+        # This line is essential
         return answer

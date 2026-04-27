@@ -1,0 +1,695 @@
+{
+  "metadata": {
+    "generated": "2026-04-26T10:00:00Z",
+    "description": "Sample Datadog organizational data for OrgGPT demo/testing",
+    "org": "FinServ Corp",
+    "environment": "production"
+  },
+
+  "services": [
+    {
+      "service_name": "payments-api",
+      "team": "payments",
+      "language": "java",
+      "type": "web",
+      "tier": "critical",
+      "owner": "payments-team@finservcorp.com",
+      "repo": "github.com/finservcorp/payments-api",
+      "docs": "https://confluence.finservcorp.com/payments-api",
+      "dependencies": ["fraud-detection", "ledger-service", "notification-service", "vault-secrets"],
+      "dependents": ["mobile-gateway", "web-checkout", "partner-api"],
+      "tags": ["payments", "pci-dss", "critical-path"],
+      "slos": [
+        {
+          "id": "slo-pay-001",
+          "name": "Payments API Availability",
+          "type": "monitor",
+          "target": 99.95,
+          "current": 99.97,
+          "status": "OK",
+          "window": "30d"
+        },
+        {
+          "id": "slo-pay-002",
+          "name": "Payment Processing Latency p99 < 500ms",
+          "type": "metric",
+          "target": 99.0,
+          "current": 98.7,
+          "status": "WARNING",
+          "window": "7d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 1842.3, "unit": "req/s", "trend": "stable" },
+        "error_rate": { "value": 0.03, "unit": "%", "trend": "stable" },
+        "p50_latency_ms": 45,
+        "p95_latency_ms": 210,
+        "p99_latency_ms": 487,
+        "apdex": 0.94
+      },
+      "infrastructure": {
+        "hosts": ["pay-api-prod-01", "pay-api-prod-02", "pay-api-prod-03"],
+        "containers": 12,
+        "avg_cpu_percent": 34.2,
+        "avg_memory_percent": 61.8
+      }
+    },
+    {
+      "service_name": "fraud-detection",
+      "team": "risk",
+      "language": "python",
+      "type": "worker",
+      "tier": "critical",
+      "owner": "risk-engineering@finservcorp.com",
+      "repo": "github.com/finservcorp/fraud-detection",
+      "docs": "https://confluence.finservcorp.com/fraud-detection",
+      "dependencies": ["ml-model-serving", "redis-cache", "postgres-risk"],
+      "dependents": ["payments-api", "card-issuance"],
+      "tags": ["risk", "ml", "real-time", "pci-dss"],
+      "slos": [
+        {
+          "id": "slo-fraud-001",
+          "name": "Fraud Detection Availability",
+          "type": "monitor",
+          "target": 99.9,
+          "current": 99.99,
+          "status": "OK",
+          "window": "30d"
+        },
+        {
+          "id": "slo-fraud-002",
+          "name": "Fraud Score Latency p99 < 100ms",
+          "type": "metric",
+          "target": 99.5,
+          "current": 99.6,
+          "status": "OK",
+          "window": "7d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 1839.1, "unit": "req/s", "trend": "stable" },
+        "error_rate": { "value": 0.01, "unit": "%", "trend": "decreasing" },
+        "p50_latency_ms": 18,
+        "p95_latency_ms": 67,
+        "p99_latency_ms": 94,
+        "apdex": 0.98,
+        "custom": {
+          "fraud_score_avg": 0.12,
+          "transactions_blocked_per_hour": 34,
+          "model_version": "v2.4.1"
+        }
+      },
+      "infrastructure": {
+        "hosts": ["fraud-prod-01", "fraud-prod-02"],
+        "containers": 8,
+        "avg_cpu_percent": 52.1,
+        "avg_memory_percent": 74.3
+      }
+    },
+    {
+      "service_name": "ledger-service",
+      "team": "core-banking",
+      "language": "go",
+      "type": "web",
+      "tier": "critical",
+      "owner": "core-banking@finservcorp.com",
+      "repo": "github.com/finservcorp/ledger-service",
+      "dependencies": ["postgres-ledger", "event-bus", "audit-logger"],
+      "dependents": ["payments-api", "reporting-service", "reconciliation-job"],
+      "tags": ["ledger", "double-entry", "sox-compliance", "critical-path"],
+      "slos": [
+        {
+          "id": "slo-ledger-001",
+          "name": "Ledger Write Availability",
+          "type": "monitor",
+          "target": 99.99,
+          "current": 100.0,
+          "status": "OK",
+          "window": "30d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 423.7, "unit": "req/s", "trend": "stable" },
+        "error_rate": { "value": 0.0, "unit": "%", "trend": "stable" },
+        "p50_latency_ms": 12,
+        "p95_latency_ms": 38,
+        "p99_latency_ms": 89,
+        "apdex": 0.99
+      },
+      "infrastructure": {
+        "hosts": ["ledger-prod-01", "ledger-prod-02", "ledger-prod-03"],
+        "containers": 6,
+        "avg_cpu_percent": 21.4,
+        "avg_memory_percent": 55.2
+      }
+    },
+    {
+      "service_name": "notification-service",
+      "team": "platform",
+      "language": "nodejs",
+      "type": "worker",
+      "tier": "high",
+      "owner": "platform-team@finservcorp.com",
+      "repo": "github.com/finservcorp/notification-service",
+      "dependencies": ["sendgrid-adapter", "twilio-adapter", "push-gateway", "redis-cache"],
+      "dependents": ["payments-api", "card-issuance", "user-service", "kyc-service"],
+      "tags": ["notifications", "email", "sms", "push"],
+      "slos": [
+        {
+          "id": "slo-notif-001",
+          "name": "Notification Delivery Rate > 99%",
+          "type": "metric",
+          "target": 99.0,
+          "current": 99.4,
+          "status": "OK",
+          "window": "7d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 312.5, "unit": "req/s", "trend": "increasing" },
+        "error_rate": { "value": 0.6, "unit": "%", "trend": "stable" },
+        "p50_latency_ms": 230,
+        "p95_latency_ms": 1200,
+        "p99_latency_ms": 3400,
+        "apdex": 0.87,
+        "custom": {
+          "emails_sent_per_hour": 45200,
+          "sms_sent_per_hour": 8300,
+          "push_sent_per_hour": 102000,
+          "delivery_failures_per_hour": 124
+        }
+      },
+      "infrastructure": {
+        "hosts": ["notif-prod-01", "notif-prod-02"],
+        "containers": 10,
+        "avg_cpu_percent": 28.7,
+        "avg_memory_percent": 43.1
+      }
+    },
+    {
+      "service_name": "mobile-gateway",
+      "team": "mobile",
+      "language": "java",
+      "type": "web",
+      "tier": "critical",
+      "owner": "mobile-team@finservcorp.com",
+      "repo": "github.com/finservcorp/mobile-gateway",
+      "dependencies": ["payments-api", "user-service", "kyc-service", "auth-service"],
+      "dependents": [],
+      "tags": ["gateway", "mobile", "public-facing", "rate-limited"],
+      "slos": [
+        {
+          "id": "slo-mgw-001",
+          "name": "Mobile Gateway Availability",
+          "type": "monitor",
+          "target": 99.9,
+          "current": 99.91,
+          "status": "OK",
+          "window": "30d"
+        },
+        {
+          "id": "slo-mgw-002",
+          "name": "Mobile Gateway p95 Latency < 300ms",
+          "type": "metric",
+          "target": 99.0,
+          "current": 97.2,
+          "status": "BREACHED",
+          "window": "7d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 5230.1, "unit": "req/s", "trend": "increasing" },
+        "error_rate": { "value": 0.09, "unit": "%", "trend": "increasing" },
+        "p50_latency_ms": 98,
+        "p95_latency_ms": 334,
+        "p99_latency_ms": 890,
+        "apdex": 0.91
+      },
+      "infrastructure": {
+        "hosts": ["mgw-prod-01", "mgw-prod-02", "mgw-prod-03", "mgw-prod-04"],
+        "containers": 20,
+        "avg_cpu_percent": 67.3,
+        "avg_memory_percent": 72.1
+      }
+    },
+    {
+      "service_name": "kyc-service",
+      "team": "compliance",
+      "language": "python",
+      "type": "web",
+      "tier": "high",
+      "owner": "compliance-eng@finservcorp.com",
+      "repo": "github.com/finservcorp/kyc-service",
+      "dependencies": ["jumio-adapter", "postgres-kyc", "document-storage", "notification-service"],
+      "dependents": ["mobile-gateway", "user-service", "card-issuance"],
+      "tags": ["kyc", "compliance", "aml", "regulated"],
+      "slos": [
+        {
+          "id": "slo-kyc-001",
+          "name": "KYC Service Availability",
+          "type": "monitor",
+          "target": 99.5,
+          "current": 99.8,
+          "status": "OK",
+          "window": "30d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 42.3, "unit": "req/s", "trend": "stable" },
+        "error_rate": { "value": 1.2, "unit": "%", "trend": "stable" },
+        "p50_latency_ms": 890,
+        "p95_latency_ms": 4200,
+        "p99_latency_ms": 8900,
+        "apdex": 0.76,
+        "custom": {
+          "verifications_per_hour": 1240,
+          "auto_approved_rate_percent": 78.3,
+          "manual_review_queue_depth": 47
+        }
+      },
+      "infrastructure": {
+        "hosts": ["kyc-prod-01", "kyc-prod-02"],
+        "containers": 4,
+        "avg_cpu_percent": 19.2,
+        "avg_memory_percent": 38.7
+      }
+    },
+    {
+      "service_name": "auth-service",
+      "team": "identity",
+      "language": "go",
+      "type": "web",
+      "tier": "critical",
+      "owner": "identity-team@finservcorp.com",
+      "repo": "github.com/finservcorp/auth-service",
+      "dependencies": ["redis-sessions", "postgres-identity", "vault-secrets", "notification-service"],
+      "dependents": ["mobile-gateway", "web-checkout", "partner-api", "admin-portal"],
+      "tags": ["auth", "identity", "oauth2", "jwt", "critical-path"],
+      "slos": [
+        {
+          "id": "slo-auth-001",
+          "name": "Auth Service Availability",
+          "type": "monitor",
+          "target": 99.99,
+          "current": 99.99,
+          "status": "OK",
+          "window": "30d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 8920.4, "unit": "req/s", "trend": "stable" },
+        "error_rate": { "value": 0.02, "unit": "%", "trend": "stable" },
+        "p50_latency_ms": 8,
+        "p95_latency_ms": 24,
+        "p99_latency_ms": 61,
+        "apdex": 0.99,
+        "custom": {
+          "active_sessions": 284120,
+          "logins_per_hour": 42300,
+          "failed_login_rate_percent": 3.2,
+          "token_refresh_per_hour": 198000
+        }
+      },
+      "infrastructure": {
+        "hosts": ["auth-prod-01", "auth-prod-02", "auth-prod-03"],
+        "containers": 9,
+        "avg_cpu_percent": 41.8,
+        "avg_memory_percent": 58.4
+      }
+    },
+    {
+      "service_name": "reporting-service",
+      "team": "data-platform",
+      "language": "python",
+      "type": "web",
+      "tier": "medium",
+      "owner": "data-platform@finservcorp.com",
+      "repo": "github.com/finservcorp/reporting-service",
+      "dependencies": ["ledger-service", "postgres-reporting", "redshift-warehouse", "s3-reports"],
+      "dependents": ["admin-portal", "partner-api"],
+      "tags": ["reporting", "analytics", "sox-compliance"],
+      "slos": [
+        {
+          "id": "slo-report-001",
+          "name": "Report Generation Availability",
+          "type": "monitor",
+          "target": 99.0,
+          "current": 99.5,
+          "status": "OK",
+          "window": "30d"
+        }
+      ],
+      "metrics": {
+        "request_rate": { "value": 12.4, "unit": "req/s", "trend": "stable" },
+        "error_rate": { "value": 0.8, "unit": "%", "trend": "stable" },
+        "p50_latency_ms": 1200,
+        "p95_latency_ms": 8900,
+        "p99_latency_ms": 24000,
+        "apdex": 0.71
+      },
+      "infrastructure": {
+        "hosts": ["reporting-prod-01"],
+        "containers": 3,
+        "avg_cpu_percent": 15.3,
+        "avg_memory_percent": 48.9
+      }
+    }
+  ],
+
+  "monitors": [
+    {
+      "id": "mon-001",
+      "name": "[payments-api] High Error Rate",
+      "type": "metric alert",
+      "status": "OK",
+      "service": "payments-api",
+      "team": "payments",
+      "query": "avg(last_5m):sum:trace.http.request.errors{service:payments-api}.as_rate() / sum:trace.http.request.hits{service:payments-api}.as_rate() * 100 > 1",
+      "threshold": { "critical": 1.0, "warning": 0.5 },
+      "tags": ["payments", "error-rate", "pagerduty"],
+      "notify": ["@pagerduty-payments", "@slack-payments-alerts"],
+      "last_triggered": null
+    },
+    {
+      "id": "mon-002",
+      "name": "[mobile-gateway] p95 Latency SLO Breach",
+      "type": "metric alert",
+      "status": "ALERT",
+      "service": "mobile-gateway",
+      "team": "mobile",
+      "query": "avg(last_15m):avg:trace.http.request.duration.by.resource_type{service:mobile-gateway,quantile:0.95} > 0.3",
+      "threshold": { "critical": 0.3, "warning": 0.25 },
+      "tags": ["mobile-gateway", "latency", "slo"],
+      "notify": ["@pagerduty-mobile", "@slack-mobile-oncall"],
+      "last_triggered": "2026-04-26T07:42:00Z",
+      "triggered_duration_minutes": 144
+    },
+    {
+      "id": "mon-003",
+      "name": "[fraud-detection] Model Drift Alert",
+      "type": "metric alert",
+      "status": "OK",
+      "service": "fraud-detection",
+      "team": "risk",
+      "query": "avg(last_1h):avg:fraud.model.score.avg{env:production} > 0.35",
+      "threshold": { "critical": 0.35, "warning": 0.28 },
+      "tags": ["fraud", "ml", "model-drift"],
+      "notify": ["@slack-risk-alerts", "@risk-on-call"],
+      "last_triggered": "2026-04-19T14:22:00Z"
+    },
+    {
+      "id": "mon-004",
+      "name": "[auth-service] Failed Login Spike",
+      "type": "metric alert",
+      "status": "OK",
+      "service": "auth-service",
+      "team": "identity",
+      "query": "avg(last_5m):sum:auth.login.failed{env:production}.as_rate() > 500",
+      "threshold": { "critical": 500, "warning": 300 },
+      "tags": ["auth", "security", "brute-force"],
+      "notify": ["@pagerduty-security", "@slack-security-alerts"],
+      "last_triggered": "2026-04-21T02:11:00Z"
+    },
+    {
+      "id": "mon-005",
+      "name": "[ledger-service] Database Replication Lag",
+      "type": "metric alert",
+      "status": "OK",
+      "service": "ledger-service",
+      "team": "core-banking",
+      "query": "avg(last_5m):avg:postgresql.replication_delay{dbname:postgres-ledger} > 30",
+      "threshold": { "critical": 30, "warning": 10 },
+      "tags": ["ledger", "postgres", "replication"],
+      "notify": ["@pagerduty-core-banking", "@dba-team"],
+      "last_triggered": null
+    },
+    {
+      "id": "mon-006",
+      "name": "[kyc-service] Manual Review Queue Depth",
+      "type": "metric alert",
+      "status": "WARNING",
+      "service": "kyc-service",
+      "team": "compliance",
+      "query": "avg(last_30m):avg:kyc.manual_review.queue_depth{env:production} > 100",
+      "threshold": { "critical": 200, "warning": 100 },
+      "tags": ["kyc", "compliance", "queue"],
+      "notify": ["@slack-compliance-ops"],
+      "last_triggered": "2026-04-26T09:15:00Z",
+      "triggered_duration_minutes": 45
+    },
+    {
+      "id": "mon-007",
+      "name": "[notification-service] Email Delivery Failure Rate",
+      "type": "metric alert",
+      "status": "OK",
+      "service": "notification-service",
+      "team": "platform",
+      "query": "avg(last_15m):sum:notifications.email.failed{env:production}.as_rate() / sum:notifications.email.sent{env:production}.as_rate() * 100 > 2",
+      "threshold": { "critical": 2.0, "warning": 1.0 },
+      "tags": ["notifications", "email", "sendgrid"],
+      "notify": ["@slack-platform-alerts"],
+      "last_triggered": "2026-04-24T16:33:00Z"
+    },
+    {
+      "id": "mon-008",
+      "name": "[payments-api] p99 Latency Warning",
+      "type": "metric alert",
+      "status": "WARNING",
+      "service": "payments-api",
+      "team": "payments",
+      "query": "avg(last_10m):avg:trace.http.request.duration{service:payments-api,quantile:0.99} > 0.45",
+      "threshold": { "critical": 0.5, "warning": 0.45 },
+      "tags": ["payments", "latency"],
+      "notify": ["@slack-payments-alerts"],
+      "last_triggered": "2026-04-26T08:55:00Z",
+      "triggered_duration_minutes": 65
+    }
+  ],
+
+  "incidents": [
+    {
+      "id": "inc-2026-041",
+      "title": "Mobile Gateway p95 Latency Degradation",
+      "status": "active",
+      "severity": "SEV-2",
+      "services_affected": ["mobile-gateway", "payments-api"],
+      "team": "mobile",
+      "commander": "sarah.chen@finservcorp.com",
+      "started_at": "2026-04-26T07:42:00Z",
+      "resolved_at": null,
+      "customer_impact": "Increased latency for mobile app users during checkout",
+      "postmortem_url": null,
+      "timeline": [
+        { "time": "2026-04-26T07:42:00Z", "event": "Monitor triggered: p95 latency > 300ms" },
+        { "time": "2026-04-26T07:48:00Z", "event": "On-call engineer paged" },
+        { "time": "2026-04-26T07:55:00Z", "event": "Incident declared SEV-2" },
+        { "time": "2026-04-26T08:10:00Z", "event": "Root cause identified: upstream dependency on payments-api showing latency spike" },
+        { "time": "2026-04-26T08:30:00Z", "event": "Mitigation in progress: increased connection pool size" }
+      ]
+    },
+    {
+      "id": "inc-2026-038",
+      "title": "Auth Service Elevated Failed Logins - Credential Stuffing Attack",
+      "status": "resolved",
+      "severity": "SEV-2",
+      "services_affected": ["auth-service"],
+      "team": "identity",
+      "commander": "james.okafor@finservcorp.com",
+      "started_at": "2026-04-21T02:11:00Z",
+      "resolved_at": "2026-04-21T03:45:00Z",
+      "ttd_minutes": 4,
+      "ttr_minutes": 94,
+      "customer_impact": "No customer data compromised. Rate limiting triggered for 2,300 IPs",
+      "postmortem_url": "https://confluence.finservcorp.com/postmortems/inc-2026-038",
+      "root_cause": "Credential stuffing attack from botnet. Mitigated by IP rate limiting and CAPTCHA enforcement."
+    },
+    {
+      "id": "inc-2026-031",
+      "title": "Ledger Service Database Failover",
+      "status": "resolved",
+      "severity": "SEV-1",
+      "services_affected": ["ledger-service", "payments-api", "reconciliation-job"],
+      "team": "core-banking",
+      "commander": "priya.nair@finservcorp.com",
+      "started_at": "2026-04-14T14:22:00Z",
+      "resolved_at": "2026-04-14T14:51:00Z",
+      "ttd_minutes": 2,
+      "ttr_minutes": 29,
+      "customer_impact": "Payment processing unavailable for 8 minutes during failover",
+      "postmortem_url": "https://confluence.finservcorp.com/postmortems/inc-2026-031",
+      "root_cause": "Primary database host OOM killed due to unoptimized reporting query. Automatic failover to replica succeeded."
+    }
+  ],
+
+  "dashboards": [
+    {
+      "id": "dash-001",
+      "title": "Payments Platform Overview",
+      "url": "https://app.datadoghq.com/dashboard/abc-123",
+      "team": "payments",
+      "services": ["payments-api", "fraud-detection", "ledger-service"],
+      "widgets": ["request_rate", "error_rate", "latency_heatmap", "slo_status", "active_incidents"]
+    },
+    {
+      "id": "dash-002",
+      "title": "Mobile Gateway SLO Tracker",
+      "url": "https://app.datadoghq.com/dashboard/def-456",
+      "team": "mobile",
+      "services": ["mobile-gateway"],
+      "widgets": ["slo_burn_rate", "p95_latency_trend", "error_budget_remaining"]
+    },
+    {
+      "id": "dash-003",
+      "title": "Security & Auth Overview",
+      "url": "https://app.datadoghq.com/dashboard/ghi-789",
+      "team": "identity",
+      "services": ["auth-service", "kyc-service"],
+      "widgets": ["failed_login_rate", "active_sessions", "suspicious_ip_map", "kyc_queue_depth"]
+    },
+    {
+      "id": "dash-004",
+      "title": "Infrastructure Health",
+      "url": "https://app.datadoghq.com/dashboard/jkl-012",
+      "team": "platform",
+      "services": ["all"],
+      "widgets": ["host_cpu", "host_memory", "container_count", "network_io", "disk_usage"]
+    }
+  ],
+
+  "teams": [
+    {
+      "name": "payments",
+      "display_name": "Payments Engineering",
+      "slack_channel": "#payments-engineering",
+      "oncall_schedule": "PagerDuty: Payments Rotation",
+      "members": 8,
+      "services_owned": ["payments-api"],
+      "lead": "marco.ricci@finservcorp.com"
+    },
+    {
+      "name": "risk",
+      "display_name": "Risk & Fraud Engineering",
+      "slack_channel": "#risk-engineering",
+      "oncall_schedule": "PagerDuty: Risk Rotation",
+      "members": 5,
+      "services_owned": ["fraud-detection"],
+      "lead": "ananya.krishnan@finservcorp.com"
+    },
+    {
+      "name": "core-banking",
+      "display_name": "Core Banking",
+      "slack_channel": "#core-banking-eng",
+      "oncall_schedule": "PagerDuty: Core Banking Rotation",
+      "members": 6,
+      "services_owned": ["ledger-service"],
+      "lead": "priya.nair@finservcorp.com"
+    },
+    {
+      "name": "platform",
+      "display_name": "Platform Engineering",
+      "slack_channel": "#platform-eng",
+      "oncall_schedule": "PagerDuty: Platform Rotation",
+      "members": 7,
+      "services_owned": ["notification-service"],
+      "lead": "david.okwu@finservcorp.com"
+    },
+    {
+      "name": "mobile",
+      "display_name": "Mobile Engineering",
+      "slack_channel": "#mobile-eng",
+      "oncall_schedule": "PagerDuty: Mobile Rotation",
+      "members": 9,
+      "services_owned": ["mobile-gateway"],
+      "lead": "sarah.chen@finservcorp.com"
+    },
+    {
+      "name": "compliance",
+      "display_name": "Compliance Engineering",
+      "slack_channel": "#compliance-eng",
+      "oncall_schedule": "PagerDuty: Compliance Rotation",
+      "members": 4,
+      "services_owned": ["kyc-service"],
+      "lead": "fatima.al-hassan@finservcorp.com"
+    },
+    {
+      "name": "identity",
+      "display_name": "Identity & Access",
+      "slack_channel": "#identity-eng",
+      "oncall_schedule": "PagerDuty: Identity Rotation",
+      "members": 5,
+      "services_owned": ["auth-service"],
+      "lead": "james.okafor@finservcorp.com"
+    },
+    {
+      "name": "data-platform",
+      "display_name": "Data Platform",
+      "slack_channel": "#data-platform",
+      "oncall_schedule": "PagerDuty: Data Platform Rotation",
+      "members": 6,
+      "services_owned": ["reporting-service"],
+      "lead": "liu.wei@finservcorp.com"
+    }
+  ],
+
+  "dependency_graph": {
+    "nodes": [
+      "payments-api", "fraud-detection", "ledger-service", "notification-service",
+      "mobile-gateway", "kyc-service", "auth-service", "reporting-service",
+      "ml-model-serving", "redis-cache", "postgres-risk", "postgres-ledger",
+      "postgres-kyc", "postgres-identity", "postgres-reporting", "redis-sessions",
+      "vault-secrets", "event-bus", "audit-logger", "document-storage",
+      "redshift-warehouse", "s3-reports", "sendgrid-adapter", "twilio-adapter",
+      "push-gateway", "jumio-adapter", "web-checkout", "partner-api", "admin-portal"
+    ],
+    "edges": [
+      { "from": "mobile-gateway", "to": "payments-api", "type": "sync" },
+      { "from": "mobile-gateway", "to": "auth-service", "type": "sync" },
+      { "from": "mobile-gateway", "to": "kyc-service", "type": "sync" },
+      { "from": "mobile-gateway", "to": "user-service", "type": "sync" },
+      { "from": "payments-api", "to": "fraud-detection", "type": "sync" },
+      { "from": "payments-api", "to": "ledger-service", "type": "sync" },
+      { "from": "payments-api", "to": "notification-service", "type": "async" },
+      { "from": "payments-api", "to": "vault-secrets", "type": "sync" },
+      { "from": "fraud-detection", "to": "ml-model-serving", "type": "sync" },
+      { "from": "fraud-detection", "to": "redis-cache", "type": "sync" },
+      { "from": "fraud-detection", "to": "postgres-risk", "type": "sync" },
+      { "from": "ledger-service", "to": "postgres-ledger", "type": "sync" },
+      { "from": "ledger-service", "to": "event-bus", "type": "async" },
+      { "from": "ledger-service", "to": "audit-logger", "type": "async" },
+      { "from": "auth-service", "to": "redis-sessions", "type": "sync" },
+      { "from": "auth-service", "to": "postgres-identity", "type": "sync" },
+      { "from": "auth-service", "to": "vault-secrets", "type": "sync" },
+      { "from": "auth-service", "to": "notification-service", "type": "async" },
+      { "from": "notification-service", "to": "sendgrid-adapter", "type": "sync" },
+      { "from": "notification-service", "to": "twilio-adapter", "type": "sync" },
+      { "from": "notification-service", "to": "push-gateway", "type": "sync" },
+      { "from": "notification-service", "to": "redis-cache", "type": "sync" },
+      { "from": "kyc-service", "to": "jumio-adapter", "type": "sync" },
+      { "from": "kyc-service", "to": "postgres-kyc", "type": "sync" },
+      { "from": "kyc-service", "to": "document-storage", "type": "sync" },
+      { "from": "kyc-service", "to": "notification-service", "type": "async" },
+      { "from": "reporting-service", "to": "ledger-service", "type": "sync" },
+      { "from": "reporting-service", "to": "postgres-reporting", "type": "sync" },
+      { "from": "reporting-service", "to": "redshift-warehouse", "type": "sync" },
+      { "from": "reporting-service", "to": "s3-reports", "type": "async" }
+    ]
+  },
+
+  "sample_queries": [
+    "Which team owns the payments-api?",
+    "What services depend on fraud-detection?",
+    "Which monitors are currently in ALERT state?",
+    "What is the p99 latency of the auth-service?",
+    "Which services have active SLO breaches?",
+    "What happened in incident inc-2026-031?",
+    "Which services does the mobile team own?",
+    "What are all the dependencies of mobile-gateway?",
+    "Which services use vault-secrets?",
+    "What is the current error rate for payments-api?",
+    "Which teams have on-call rotations in PagerDuty?",
+    "What services are tagged with pci-dss?",
+    "How many containers is fraud-detection running?",
+    "Which incidents are currently active?",
+    "What is the apdex score for ledger-service?"
+  ]
+}

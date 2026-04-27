@@ -1,0 +1,31 @@
+# Railway Deployment Configuration
+# ================================
+# Optimized for FastAPI + ChromaDB + Sentence Transformers
+
+[source]
+rootDirectory = "."
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python3 index_builder.py --json-datadog sample_datadog.json && python3 -m uvicorn app_api:app --host 0.0.0.0 --port $PORT"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+[build.nixpacksPlan]
+providers = ["python"]
+
+[build.nixpacksPlan.phases.install]
+cmds = [
+    "pip install --upgrade pip",
+    "pip install --no-cache-dir -r requirements.txt"
+]
+
+[build.nixpacksPlan.phases.setup]
+cmds = [
+    "echo '🔍 Verifying JSON files exist...'",
+    "ls -la sample_get_*.json || echo '⚠️  Warning: Sample JSON files not found'",
+    "echo '🏗️  Building index...'",
+    "python3 index_builder.py"
+]

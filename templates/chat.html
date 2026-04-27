@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ORGpt</title>
+  <title>OrgGPT</title>
   <style>
     body {
       font-family: "Segoe UI", Arial, sans-serif;
@@ -72,16 +72,48 @@
     button:hover {
       background: #0040c1;
     }
+    .status-bar {
+      background: #e8f4fd;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #0056ff;
+    }
+    .recommended {
+      background: #d4edda;
+      border-color: #28a745;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-weight: 600;
+      color: #155724;
+    }
   </style>
 </head>
 
 <body>
   <div id="chatbox">
-    <h2>Orgpt Chat Interface</h2>
+    <h2>🔍 OrgGPT</h2>
+    
+    <!-- Status Bar -->
+    <div class="status-bar" id="status-bar">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-weight: 600;">Data Source:</span>
+          <span id="active-source" style="margin-left: 1rem; color: #0056ff; font-weight: 600;">
+          </span>
+          <span class="recommended" id="recommended-badge">All Sources</span>
+        </div>
+      </div>
+      <div style="margin-top: 0.5rem; color: #666; font-size: 0.9em;">
+        Swagger API Documentation + Datadog Catalog + Datadog SLOs
+      </div>
+    </div>
+
     <div id="messages"></div>
 
     <form id="chat-form">
-      <input type="text" id="query" name="query" placeholder="Ask Orgpt about any API..." required />
+      <input type="text" id="query" name="query" placeholder="Ask about APIs, Datadog services, SLOs, or anything..." required />
       <button type="submit">Send</button>
     </form>
   </div>
@@ -89,41 +121,49 @@
   <script>
     const form = document.getElementById("chat-form");
     const messages = document.getElementById("messages");
+    const queryInput = document.getElementById("query");
 
+    // Submit form
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const query = document.getElementById("query").value;
+      const query = queryInput.value;
       if (!query.trim()) return;
 
       // Display user's message
       messages.innerHTML += `<div class="user"><b>You:</b> ${query}</div>`;
-      document.getElementById("query").value = "";
+      queryInput.value = "";
       messages.scrollTop = messages.scrollHeight;
 
       try {
-        const response = await fetch("/chat", {
+        // Query unified endpoint (always uses unified_knowledge)
+        const response = await fetch("/query", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ query })
+          body: new URLSearchParams({ 
+            query: query
+          })
         });
 
         const data = await response.json();
-        console.log("📦 Raw response:", data);
+        console.log("📦 Response:", data);
 
-        // ✅ Handle both success and error cases
+        // Handle response
         if (data.answer) {
-          // Preserve line breaks and code blocks
-          messages.innerHTML += `<div class="bot"><b>Orgpt:</b><pre>${data.answer}</pre></div>`;
+          const sourceIcon = data.source_icon || "🔍";
+          const sourceName = data.source_name || data.source;
+          const note = data.note ? `<div style="color: #666; font-size: 0.9em; margin-top: 0.5rem;">ℹ️ ${data.note}</div>` : "";
+          messages.innerHTML += `<div class="bot"><b>${sourceIcon} ${sourceName}:</b><pre>${data.answer}</pre>${note}</div>`;
         } else if (data.error) {
-          messages.innerHTML += `<div class="bot"><b>Error:</b> ${data.error}</div>`;
+          messages.innerHTML += `<div class="bot"><b>❌ Error:</b> ${data.error}</div>`;
         } else {
-          messages.innerHTML += `<div class="bot"><b>Orgpt:</b> (No valid answer returned)</div>`;
+          messages.innerHTML += `<div class="bot"><b>⚠️ Warning:</b> No answer returned</div>`;
         }
 
         messages.scrollTop = messages.scrollHeight;
       } catch (err) {
         console.error("❌ Fetch error:", err);
-        messages.innerHTML += `<div class="bot"><b>Error:</b> Unable to connect to backend.</div>`;
+        messages.innerHTML += `<div class="bot"><b>❌ Error:</b> Unable to connect to backend.</div>`;
+        messages.scrollTop = messages.scrollHeight;
       }
     });
   </script>

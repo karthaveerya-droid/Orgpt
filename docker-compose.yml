@@ -1,0 +1,51 @@
+services:
+  # ChromaDB Vector Database
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: orgpt-chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./chroma_data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+      - ALLOW_RESET=TRUE
+    networks:
+      - orgpt-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import chromadb; client = chromadb.HttpClient(host=\"localhost\", port=8000); client.heartbeat()' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # OrgGPT Application (optional - uncomment to run app in Docker)
+  # orgpt-app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: orgpt-app
+  #   ports:
+  #     - "8001:8001"
+  #   volumes:
+  #     - .:/app
+  #   environment:
+  #     - CHROMA_HOST=chromadb
+  #     - CHROMA_PORT=8000
+  #   depends_on:
+  #     chromadb:
+  #       condition: service_healthy
+  #   networks:
+  #     - orgpt-network
+  #   restart: unless-stopped
+  #   command: uvicorn app_api:app --host 0.0.0.0 --port 8001 --reload
+
+networks:
+  orgpt-network:
+    driver: bridge
+
+volumes:
+  chroma_data:
+    driver: local
